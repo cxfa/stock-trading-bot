@@ -16,7 +16,7 @@ from fetch_stock_data import fetch_realtime_sina, fetch_market_overview, fetch_k
 from technical_analysis import generate_signals, calculate_volume_ratio
 from trading_engine import (load_account, save_account, execute_trade, TRADING_RULES,
                             load_watchlist, save_watchlist, score_stock, get_holding_value,
-                            get_available_cash, calculate_trade_cost,
+                            get_current_cash, calculate_trade_cost,
                             get_today_stop_loss_codes, get_today_buy_count)
 
 # 可转债扫描（盘中增量接入）
@@ -658,9 +658,17 @@ def run_monitor():
     print(f"\n{'─'*40}")
     print(f"💰 总资产: ¥{snapshot['total_value']:,.2f}")
     print(f"💵 现金: ¥{snapshot['cash']:,.2f}")
+    print(f"📊 股票:")
     for h in snapshot["holdings"]:
         emoji = "🔴" if h["pnl_from_cost_pct"] >= 0 else "🟢"
         print(f"   {emoji} {h['name']} ¥{h['price']} ({h['change_pct']:+.1f}%) 成本盈亏{h['pnl_from_cost_pct']:+.1f}%")
+    # 可转债明细
+    cb_holdings = account.get("cb_holdings", [])
+    if cb_holdings:
+        print(f"📋 可转债:")
+        for cb in cb_holdings:
+            emoji = "🔴" if cb.get("pnl_pct", 0) >= 0 else "🟢"
+            print(f"   {emoji} {cb['bond_name']} {cb['shares']}张 ¥{cb['current_price']} 市值¥{cb.get('market_value',0):,.2f} {cb.get('pnl_pct',0):+.1f}%")
 
     # 返回结构化结果（供cron任务使用）
     return {

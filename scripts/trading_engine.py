@@ -115,7 +115,7 @@ def calculate_trade_cost(amount: float, is_sell: bool = False) -> float:
     stamp = amount * TRADING_RULES["stamp_tax"] if is_sell else 0
     return round(commission + transfer + stamp, 2)
 
-def get_available_cash(account: Dict) -> float:
+def get_current_cash(account: Dict) -> float:
     """获取可用现金"""
     return account.get("current_cash", 0)
 
@@ -416,7 +416,7 @@ def generate_trade_decisions(account: Dict, watchlist: Dict, sentiment: Dict = N
     realtime = fetch_realtime_sina(codes)
     
     # 获取可用资金
-    available_cash = get_available_cash(account)
+    available_cash = get_current_cash(account)
     total_value = account.get("total_value", 1000000)
     current_position_pct = 1 - (available_cash / total_value)
     
@@ -1141,7 +1141,7 @@ def run_enhanced_trading_cycle():
             if holding_qty == 0:  # 未持仓
                 # === v3: 仓位硬阻断 ===
                 total_val = account.get("total_value", 1000000)
-                cash_now = get_available_cash(account)
+                cash_now = get_current_cash(account)
                 pos_pct = 1 - (cash_now / total_val) if total_val > 0 else 1
                 max_total = TRADING_RULES.get("max_total_position", 0.50)
                 if pos_pct >= max_total:
