@@ -9,6 +9,7 @@ import os
 import subprocess
 from datetime import datetime, timedelta
 from pathlib import Path
+from typing import Any
 
 sys.path.insert(0, str(Path(__file__).parent))
 
@@ -27,6 +28,85 @@ BASE_DIR = Path(__file__).parent.parent
 DATA_DIR = BASE_DIR / "data"
 SNAPSHOT_DIR = DATA_DIR / "intraday_snapshots"
 SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
+
+FEISHU_CARD = Path("/root/.openclaw/workspace/scripts/feishu_card.py")
+
+
+def _send_feishu_card(title: str, content_md: str, template: str = "blue", note: str = "小豆豆") -> bool:
+    """Send Feishu card via subprocess (no import).
+
+    Returns True on success, False otherwise.
+    """
+    if not FEISHU_CARD.exists():
+        print(f"⚠️ Feishu card script not found: {FEISHU_CARD}")
+        return False
+
+    try:
+        cp = subprocess.run(
+            [
+                sys.executable,
+                str(FEISHU_CARD),
+                "--title",
+                title,
+                "--content",
+                content_md,
+                "--template",
+                template,
+                "--note",
+                note,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if cp.returncode != 0:
+            print(f"⚠️ Feishu card send failed rc={cp.returncode}: {cp.stderr.strip() or cp.stdout.strip()}")
+            return False
+        print(f"✅ Feishu card sent: {title}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Feishu card send exception: {e}")
+        return False
+
+
+def _format_holdings_block(holdings: list[dict[str, Any]]) -> str:
+    """Feishu card doesn't support tables; use code block alignment."""
+    if not holdings:
+        return "(空仓)"
+
+    lines = []
+    header = f"{'名称':<8} {'代码':<8} {'现价':>7} {'涨跌%':>7} {'成本盈亏%':>9}"
+    lines.append(header)
+    lines.append("-" * len(header))
+
+    for h in holdings:
+        name = str(h.get("name", ""))[:8]
+        code = str(h.get("code", ""))[:8]
+        price = h.get("price", 0)
+        chg = h.get("change_pct", 0)
+        pnl = h.get("pnl_from_cost_pct", 0)
+        lines.append(f"{name:<8} {code:<8} {price:>7.2f} {chg:>+7.2f} {pnl:>+9.2f}")
+
+    return "\n".join(lines)
+
+
+def _format_trades_block(trades: list[dict[str, Any]]) -> str:
+    if not trades:
+        return "(无)"
+    lines = []
+    header = f"{'类型':<4} {'名称':<8} {'代码':<8} {'数量':>6} {'价格':>7} {'PnL':>8}"
+    lines.append(header)
+    lines.append("-" * len(header))
+    for t in trades:
+        ttype = str(t.get("type", ""))[:4]
+        name = str(t.get("name", ""))[:8]
+        code = str(t.get("code", ""))[:8]
+        qty = int(t.get("quantity", 0) or 0)
+        price = float(t.get("price", 0) or 0)
+        pnl = t.get("pnl", "")
+        pnl_txt = f"{float(pnl):+.0f}" if isinstance(pnl, (int, float)) else ""
+        lines.append(f"{ttype:<4} {name:<8} {code:<8} {qty:>6d} {price:>7.2f} {pnl_txt:>8}")
+    return "\n".join(lines)
 
 def collect_snapshot():
     """采集当前盘面快照并追加到今日文件"""
@@ -589,13 +669,19 @@ def run_monitor():
         decisions.extend(watchlist_ops)
     
     trades_made = []
+    critical_signal = False
     if decisions:
         print(f"\n🎯 交易决策: {len(decisions)}个")
         account = load_account()
         for d in decisions:
             print(f"   {'🔴' if 'SELL' in d['action'] else '🟢'} {d['action']} {d['name']} {d['quantity']}股 @ ¥{d['price']}")
             print(f"      理由: {d['reason']}")
-            
+
+            # 关键告警（止损/强制卖出）
+            reason_txt = str(d.get("reason", ""))
+            if ("止损" in reason_txt) or (d.get("urgency") == "HIGH" and "SELL" in str(d.get("action", ""))):
+                critical_signal = True
+
             # 执行交易
             result = execute_trade(account, d)
             if result["success"]:
@@ -663,12 +749,90 @@ def run_monitor():
         emoji = "🔴" if h["pnl_from_cost_pct"] >= 0 else "🟢"
         print(f"   {emoji} {h['name']} ¥{h['price']} ({h['change_pct']:+.1f}%) 成本盈亏{h['pnl_from_cost_pct']:+.1f}%")
     # 可转债明细
-    cb_holdings = account.get("cb_holdings", [])
+    _account = load_account()
+    cb_holdings = _account.get("cb_holdings", [])
     if cb_holdings:
         print(f"📋 可转债:")
         for cb in cb_holdings:
             emoji = "🔴" if cb.get("pnl_pct", 0) >= 0 else "🟢"
             print(f"   {emoji} {cb['bond_name']} {cb['shares']}张 ¥{cb['current_price']} 市值¥{cb.get('market_value',0):,.2f} {cb.get('pnl_pct',0):+.1f}%")
+
+    # 飞书推送（脚本自发，不依赖LLM）
+    try:
+        title = f"盘中监控 {now.strftime('%H:%M')} | {analysis['trend']} {analysis['market_change']:+.2f}%"
+
+        sig_lines = "\n".join([f"- {s}" for s in (analysis.get("signals") or [])[:12]]) or "- (无特别信号)"
+
+        watch_lines = ""
+        if watchlist_ops:
+            watch_lines = "\n".join([
+                f"- {op.get('name','')}({op.get('code','')}) ¥{op.get('price',0):.2f} ({op.get('change_pct',0):+.1f}%) 评分{op.get('score',0)} 建议{op.get('quantity',0)}股"
+                for op in watchlist_ops[:8]
+            ])
+        else:
+            watch_lines = "- (无)"
+
+        holdings_block = _format_holdings_block(snapshot.get("holdings", []))
+        trades_block = _format_trades_block(trades_made)
+
+        cb_brief = ""
+        if cb_scan_ok:
+            cb_brief = f"\n\n**可转债扫描**\n- >50分机会: {len(cb_over_50)}个"
+            if cb_over_50:
+                top = cb_over_50[:3]
+                cb_brief += "\n" + "\n".join([
+                    f"- {x.get('bond_name','')}({x.get('bond_code','')}) 评分{x.get('score')} 溢价{x.get('premium_rate')}%"
+                    for x in top
+                ])
+        else:
+            cb_brief = "\n\n**可转债扫描**\n- (失败/超时，已忽略)"
+
+        # 可转债持仓明细
+        cb_holdings_lines = ""
+        cb_holdings_list = _account.get("cb_holdings", [])
+        if cb_holdings_list:
+            cb_rows = [f"{'名称':<8} {'张数':>4} {'现价':>7} {'市值':>9} {'盈亏%':>7}"]
+            cb_rows.append("-" * 45)
+            for cb in cb_holdings_list:
+                cb_rows.append(f"{cb['bond_name']:<8} {cb['shares']:>4} {cb.get('current_price',0):>7.2f} {cb.get('market_value',0):>9,.0f} {cb.get('pnl_pct',0):>+7.1f}")
+            cb_holdings_lines = f"\n\n**可转债持仓**\n```\n" + "\n".join(cb_rows) + "\n```"
+
+        # 账户汇总
+        total_val = snapshot["total_value"]
+        cash = snapshot["cash"]
+        stock_val = sum(h.get("market_value", 0) for h in snapshot.get("holdings", []))
+        cb_val = snapshot.get("cb_value", 0)
+        initial = _account.get("initial_capital", 1000000)
+        total_pnl = total_val - initial
+        pos_pct = (1 - cash / total_val) * 100 if total_val > 0 else 0
+        summary_block = (
+            f"\n\n**账户汇总**\n"
+            f"- 💰 总资产: ¥{total_val:,.0f}\n"
+            f"- 💵 可用资金: ¥{cash:,.0f}\n"
+            f"- 📊 股票市值: ¥{stock_val:,.0f} | 可转债: ¥{cb_val:,.0f}\n"
+            f"- 📊 仓位: {pos_pct:.1f}%\n"
+            f"- 💰 总盈亏(含已实现): {total_pnl:+,.0f}元({total_pnl/initial*100:+.2f}%)"
+        )
+
+        content_md = (
+            f"**大盘**\n"
+            f"- 趋势: {analysis['trend']}\n"
+            f"- 上证: {analysis['market_change']:+.2f}%\n"
+            f"- 快照: 今日第{len(all_snapshots)}次\n\n"
+            f"**信号**\n{sig_lines}\n\n"
+            f"**持仓快照**\n```\n{holdings_block}\n```"
+            f"{cb_holdings_lines}\n\n"
+            f"**Watchlist扫描**\n{watch_lines}\n\n"
+            f"**本次成交**\n```\n{trades_block}\n```"
+            f"{cb_brief}"
+            f"{summary_block}"
+        )
+
+        template = "red" if (critical_signal or (trades_made and any((t.get('type') == 'sell' and (t.get('pnl', 0) or 0) < 0) for t in trades_made))) else "blue"
+        # 监控类默认蓝；出现止损/强风险则红
+        _send_feishu_card(title=title, content_md=content_md, template=template, note="小豆豆")
+    except Exception as e:
+        print(f"⚠️ Feishu push build failed: {e}")
 
     # 返回结构化结果（供cron任务使用）
     return {

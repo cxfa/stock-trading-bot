@@ -6,6 +6,7 @@
 
 import sys
 import json
+import subprocess
 from datetime import datetime
 from pathlib import Path
 
@@ -18,6 +19,41 @@ from news_sentiment import get_market_sentiment
 from fetch_stock_data import fetch_market_overview, fetch_realtime_sina
 
 BASE_DIR = Path(__file__).parent.parent
+FEISHU_CARD = Path("/root/.openclaw/workspace/scripts/feishu_card.py")
+
+
+def _send_feishu_card(title: str, content_md: str, template: str = "blue", note: str = "小豆豆") -> bool:
+    """Send Feishu card via subprocess (no import)."""
+    if not FEISHU_CARD.exists():
+        print(f"⚠️ Feishu card script not found: {FEISHU_CARD}")
+        return False
+
+    try:
+        cp = subprocess.run(
+            [
+                sys.executable,
+                str(FEISHU_CARD),
+                "--title",
+                title,
+                "--content",
+                content_md,
+                "--template",
+                template,
+                "--note",
+                note,
+            ],
+            check=False,
+            capture_output=True,
+            text=True,
+        )
+        if cp.returncode != 0:
+            print(f"⚠️ Feishu card send failed rc={cp.returncode}: {cp.stderr.strip() or cp.stdout.strip()}")
+            return False
+        print(f"✅ Feishu card sent: {title}")
+        return True
+    except Exception as e:
+        print(f"⚠️ Feishu card send exception: {e}")
+        return False
 
 def generate_report() -> str:
     """生成交易报告"""
@@ -80,6 +116,17 @@ def generate_report() -> str:
         report.append("**【持仓】** 空仓")
         report.append("")
     
+    # 可转债持仓
+    cb_holdings = account.get("cb_holdings", [])
+    if cb_holdings:
+        report.append("**【可转债持仓】**")
+        for cb in cb_holdings:
+            emoji = "🟢" if cb.get("pnl_pct", 0) >= 0 else "🔴"
+            report.append(f"{emoji} {cb['bond_name']}({cb['bond_code']})")
+            report.append(f"   {cb['shares']}张 @ ¥{cb.get('current_price', cb['cost_price']):.2f}")
+            report.append(f"   成本¥{cb['cost_price']:.2f} | 市值¥{cb.get('market_value', 0):,.0f} ({cb.get('pnl_pct', 0):+.1f}%)")
+        report.append("")
+
     # 今日交易
     tx_file = BASE_DIR / "transactions.json"
     if tx_file.exists():
@@ -135,10 +182,54 @@ def run_full_cycle():
     
     print("\n" + report)
     
+    # 汇总交易（增强版周期返回 t0_trades/regular_trades）
+    t0_trades = (result or {}).get("t0_trades", []) if isinstance(result, dict) else []
+    regular_trades = (result or {}).get("regular_trades", []) if isinstance(result, dict) else []
+    all_trades = list(t0_trades) + list(regular_trades)
+
+    # 脚本自发飞书推送：有交易才发；无事静默
+    try:
+        if all_trades:
+            title = f"盘中交易执行 | {datetime.now().strftime('%H:%M')} | {len(all_trades)}笔"
+
+            trade_lines = "\n".join([
+                f"- {t.get('type','').upper()} {t.get('name','')}({t.get('code','')}) {t.get('quantity',0)}股 @ ¥{t.get('price',0):.2f}" + (
+                    f" | PnL {t.get('pnl',0):+.0f}" if isinstance(t.get('pnl', None), (int, float)) else ""
+                )
+                for t in all_trades[:12]
+            ])
+
+            acct = (result or {}).get("account", {}) if isinstance(result, dict) else {}
+            total_val = acct.get("total_value")
+            cash = acct.get("current_cash")
+            pnl = acct.get("total_pnl")
+            pnl_pct = acct.get("total_pnl_pct")
+
+            acct_lines = []
+            if total_val is not None:
+                acct_lines.append(f"- 总资产: ¥{float(total_val):,.2f}")
+            if cash is not None:
+                acct_lines.append(f"- 现金: ¥{float(cash):,.2f}")
+            if pnl is not None and pnl_pct is not None:
+                acct_lines.append(f"- 累计盈亏: ¥{float(pnl):+,.2f} ({float(pnl_pct):+.2f}%)")
+            acct_md = "\n".join(acct_lines) or "- (账户信息缺失)"
+
+            # 红色：出现亏损卖出（近似止损/不利交易）
+            template = "red" if any((t.get("type") == "sell" and (t.get("pnl", 0) or 0) < 0) for t in all_trades) else "blue"
+
+            content_md = (
+                f"**交易明细**\n{trade_lines}\n\n"
+                f"**账户摘要**\n{acct_md}"
+            )
+            _send_feishu_card(title=title, content_md=content_md, template=template, note="小豆豆")
+    except Exception as e:
+        print(f"⚠️ Feishu push build failed: {e}")
+
     return {
-        "trades": len(result.get("trades", [])) if result else 0,
-        "account": result.get("account", {}) if result else {},
-        "report": report
+        "trades": len(all_trades),
+        "account": (result or {}).get("account", {}) if isinstance(result, dict) else {},
+        "report": report,
+        "raw_cycle_result": result,
     }
 
 def main():
