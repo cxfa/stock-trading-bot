@@ -74,10 +74,19 @@ def generate_report() -> str:
             h["pnl_pct"] = round((price - h["cost_price"]) / h["cost_price"] * 100, 2)
             holdings_value += h["market_value"]
         
-        account["total_value"] = round(account["current_cash"] + holdings_value, 2)
+        # 加上可转债市值
+        cb_value = sum(cb.get("market_value", cb.get("cost_price", 0) * cb.get("shares", 0)) for cb in account.get("cb_holdings", []))
+        account["total_value"] = round(account["current_cash"] + holdings_value + cb_value, 2)
         account["total_pnl"] = round(account["total_value"] - account["initial_capital"], 2)
         account["total_pnl_pct"] = round(account["total_pnl"] / account["initial_capital"] * 100, 2)
     
+    else:
+        # 没有股票持仓，但可能有可转债
+        cb_value = sum(cb.get("market_value", cb.get("cost_price", 0) * cb.get("shares", 0)) for cb in account.get("cb_holdings", []))
+        account["total_value"] = round(account["current_cash"] + cb_value, 2)
+        account["total_pnl"] = round(account["total_value"] - account["initial_capital"], 2)
+        account["total_pnl_pct"] = round(account["total_pnl"] / account["initial_capital"] * 100, 2)
+
     # 获取大盘
     market = fetch_market_overview()
     
