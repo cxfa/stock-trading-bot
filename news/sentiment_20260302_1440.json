@@ -1,0 +1,143 @@
+{
+  "overall_sentiment": 29,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "贵金属",
+      4,
+      0.5
+    ],
+    [
+      "银行",
+      4,
+      -0.25
+    ],
+    [
+      "新能源车",
+      2,
+      -0.5
+    ],
+    [
+      "AI",
+      2,
+      0.0
+    ],
+    [
+      "消费",
+      1,
+      0.0
+    ],
+    [
+      "房地产",
+      1,
+      -1.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "快讯：丙烯主力合约触及涨停，涨幅6.01%",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772432384"
+    },
+    {
+      "title": "中国宏桥午后涨逾7% 广发证券维持“买入”评级",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "上涨",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772431807"
+    },
+    {
+      "title": "韩国Kospi指数上月日均成交额超30万亿韩元，创历史新高",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "突破",
+          "上涨",
+          "新高"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772429448"
+    },
+    {
+      "title": "“玉”见未来：2026年工业饲料产量仍存增量，或利多玉米价格",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "创新高",
+          "增长",
+          "新高"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772428960"
+    },
+    {
+      "title": "东方电气盘中一度涨超6% 瑞银重申“买入”评级",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "上涨",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772428839"
+    },
+    {
+      "title": "稀美资源午后大涨超21%创新高 公司为钽铌冶金产品核心生产商",
+      "sentiment": {
+        "score": 4,
+        "label": "very_positive",
+        "positive": [
+          "创新高",
+          "大涨",
+          "上涨",
+          "新高"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772428561"
+    },
+    {
+      "title": "巴基斯坦股市重挫并触发交易暂停 地缘政治紧张局势加剧",
+      "sentiment": {
+        "score": -2,
+        "label": "negative",
+        "positive": [],
+        "negative": [
+          "暴跌",
+          "下跌"
+        ]
+      },
+      "sectors": [],
+      "time": "1772427325"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-03-02T14:40:03.136554"
+}
