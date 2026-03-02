@@ -1,6 +1,262 @@
 {
-  "discovered_at": "2026-02-25T15:33:01.975664",
-  "total_scanned": 0,
-  "quality_stocks": 0,
-  "top_picks": []
+  "discovered_at": "2026-03-02T09:26:49.584489",
+  "total_scanned": 55,
+  "quality_stocks": 17,
+  "top_picks": [
+    {
+      "code": "601872",
+      "name": "招商轮船",
+      "price": 17.5,
+      "change_pct": 7.76,
+      "amount": 312149250.0,
+      "turnover": 0.22,
+      "pe": 32.12,
+      "market_cap": 141304423785,
+      "source": "成交额榜",
+      "discovery_score": 20,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "000657",
+      "name": "中钨高新",
+      "price": 71.0,
+      "change_pct": 7.22,
+      "amount": 181994300.0,
+      "turnover": 0.18,
+      "pe": 143.45,
+      "market_cap": 161780912400,
+      "source": "成交额榜",
+      "discovery_score": 20,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "601899",
+      "name": "紫金矿业",
+      "price": 40.4,
+      "change_pct": 2.15,
+      "amount": 507508840.0,
+      "turnover": 0.06,
+      "pe": 21.28,
+      "market_cap": 1074225218856,
+      "source": "成交额榜",
+      "discovery_score": 15,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "000426",
+      "name": "兴业银锡",
+      "price": 56.17,
+      "change_pct": 1.78,
+      "amount": 249057780.0,
+      "turnover": 0.25,
+      "pe": 54.84,
+      "market_cap": 99737459460,
+      "source": "成交额榜",
+      "discovery_score": 15,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "603993",
+      "name": "洛阳钼业",
+      "price": 24.4,
+      "change_pct": 1.71,
+      "amount": 223594280.0,
+      "turnover": 0.05,
+      "pe": 27.42,
+      "market_cap": 522021168294,
+      "source": "成交额榜",
+      "discovery_score": 15,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "000960",
+      "name": "锡业股份",
+      "price": 46.5,
+      "change_pct": 4.82,
+      "amount": 164712300.0,
+      "turnover": 0.22,
+      "pe": 32.89,
+      "market_cap": 76529790768,
+      "source": "成交额榜",
+      "discovery_score": 15,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "600410",
+      "name": "华胜天成",
+      "price": 28.34,
+      "change_pct": -2.07,
+      "amount": 450454551.0,
+      "turnover": 1.45,
+      "pe": 65.04,
+      "market_cap": 31074659316,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "002155",
+      "name": "湖南黄金",
+      "price": 40.0,
+      "change_pct": 6.1,
+      "amount": 294284000.0,
+      "turnover": 0.47,
+      "pe": 45.57,
+      "market_cap": 62506052640,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "600489",
+      "name": "中金黄金",
+      "price": 33.8,
+      "change_pct": 6.16,
+      "amount": 283527920.0,
+      "turnover": 0.17,
+      "pe": 33.4,
+      "market_cap": 163839164663,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "300502",
+      "name": "新易盛",
+      "price": 347.74,
+      "change_pct": -3.37,
+      "amount": 283095134.0,
+      "turnover": 0.09,
+      "pe": 40.97,
+      "market_cap": 345656798155,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "600498",
+      "name": "烽火通信",
+      "price": 55.0,
+      "change_pct": 6.69,
+      "amount": 268108500.0,
+      "turnover": 0.38,
+      "pe": 109.28,
+      "market_cap": 74699211510,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "300308",
+      "name": "中际旭创",
+      "price": 520.0,
+      "change_pct": -2.62,
+      "amount": 259964120.0,
+      "turnover": 0.05,
+      "pe": 53.51,
+      "market_cap": 577781533680,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "300476",
+      "name": "胜宏科技",
+      "price": 300.0,
+      "change_pct": -1.34,
+      "amount": 234859200.0,
+      "turnover": 0.09,
+      "pe": 60.5,
+      "market_cap": 261767193900,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "002261",
+      "name": "拓维信息",
+      "price": 36.49,
+      "change_pct": -0.08,
+      "amount": 210875710.0,
+      "turnover": 0.5,
+      "pe": 328.84,
+      "market_cap": 45971250486,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "300418",
+      "name": "昆仑万维",
+      "price": 60.11,
+      "change_pct": -1.62,
+      "amount": 186218255.38,
+      "turnover": 0.25,
+      "pe": -85.06,
+      "market_cap": 75459506445,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "601212",
+      "name": "白银有色",
+      "price": 11.55,
+      "change_pct": 7.94,
+      "amount": 172457670.0,
+      "turnover": 0.2,
+      "pe": -298.52,
+      "market_cap": 85525145602,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    },
+    {
+      "code": "300017",
+      "name": "网宿科技",
+      "price": 19.9,
+      "change_pct": -1.49,
+      "amount": 168773890.0,
+      "turnover": 0.37,
+      "pe": 59.58,
+      "market_cap": 48943050562,
+      "source": "成交额榜",
+      "discovery_score": 10,
+      "sources": [
+        "成交额榜"
+      ]
+    }
+  ]
 }

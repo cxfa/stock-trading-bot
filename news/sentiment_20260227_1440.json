@@ -1,0 +1,102 @@
+{
+  "overall_sentiment": 25,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      8,
+      0.62
+    ],
+    [
+      "银行",
+      3,
+      0.33
+    ],
+    [
+      "贵金属",
+      2,
+      0.5
+    ],
+    [
+      "新能源车",
+      2,
+      0.0
+    ],
+    [
+      "消费",
+      1,
+      2.0
+    ],
+    [
+      "医药",
+      1,
+      0.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "沪锡主力合约日内大涨6%",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "主力",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "2026-02-27 14:29:31"
+    },
+    {
+      "title": "韩国综合股价指数抹去跌幅 现代汽车股价大涨",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "反弹",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "AI"
+      ],
+      "time": "1772170545"
+    },
+    {
+      "title": "研究称AI资本支出占美国第四季度GDP增幅的近五分之一",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "上涨"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "AI",
+        "消费"
+      ],
+      "time": "1772168433"
+    },
+    {
+      "title": "里昂：银河娱乐上季经调整EBITDA胜预期 续列行业首选股 目标价49.5港元",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "扩张",
+          "飙升"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166864"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-02-27T14:40:05.668392"
+}

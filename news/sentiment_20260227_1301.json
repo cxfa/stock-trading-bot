@@ -1,0 +1,190 @@
+{
+  "overall_sentiment": 30,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      19,
+      0.26
+    ],
+    [
+      "新能源车",
+      2,
+      0.0
+    ],
+    [
+      "医药",
+      2,
+      0.5
+    ],
+    [
+      "贵金属",
+      1,
+      1.0
+    ],
+    [
+      "消费",
+      1,
+      2.0
+    ],
+    [
+      "银行",
+      1,
+      1.0
+    ],
+    [
+      "房地产",
+      1,
+      0.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "我国钙钛矿电池领域迎密集突破 12只概念股本月以来获得融资净买入",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "买入",
+          "突破"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "2026-02-27 12:26:47"
+    },
+    {
+      "title": "研究称AI资本支出占美国第四季度GDP增幅的近五分之一",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "上涨"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "AI",
+        "消费"
+      ],
+      "time": "1772168433"
+    },
+    {
+      "title": "里昂：银河娱乐上季经调整EBITDA胜预期 续列行业首选股 目标价49.5港元",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "飙升",
+          "扩张"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166864"
+    },
+    {
+      "title": "光大证券：维持对中石化炼化工程“买入”评级 25年新签合同额稳步提升",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "提升",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166789"
+    },
+    {
+      "title": "华西证券：维持江南布衣“买入”评级 剔除政府补助后净利增速更高",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166669"
+    },
+    {
+      "title": "大摩：料长和去年基本纯利同比升8% 予“增持”评级",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "增持"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166616"
+    },
+    {
+      "title": "花旗：银河娱乐上季业绩符预期 评级“买入”",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166562"
+    },
+    {
+      "title": "开源证券：首予优然牧业“增持”评级 肉奶价格共振在即",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "增长",
+          "龙头",
+          "增持"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772166404"
+    },
+    {
+      "title": "奈飞放弃竞购华纳兄弟 投资者欢呼叫好",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "龙头",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772164616"
+    },
+    {
+      "title": "药明合联午前涨近8% 公司有望持续受益XDC CRDMO行业下游需求改善趋势",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "盈利",
+          "上涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772164536"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-02-27T13:01:06.376803"
+}

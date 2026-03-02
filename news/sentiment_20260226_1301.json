@@ -1,0 +1,131 @@
+{
+  "overall_sentiment": 29,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      6,
+      0.0
+    ],
+    [
+      "贵金属",
+      4,
+      0.0
+    ],
+    [
+      "新能源车",
+      2,
+      0.0
+    ],
+    [
+      "消费",
+      2,
+      0.0
+    ],
+    [
+      "银行",
+      2,
+      0.0
+    ],
+    [
+      "光伏",
+      1,
+      0.0
+    ],
+    [
+      "医药",
+      1,
+      1.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "香港交易所第四季度利润增长15% 得益于上市融资和股票交易激增",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "新高",
+          "盈利",
+          "增长"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772081270"
+    },
+    {
+      "title": "花旗称全球大型资产管理公司看好新兴市场 有望鹤立鸡群",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "买入",
+          "看好"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772081196"
+    },
+    {
+      "title": "香港交易所公布2025年全年业绩 | 收入及溢利连续第二年创历史新高",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "新高",
+          "创新高"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772080985"
+    },
+    {
+      "title": "重庆机电午前涨超11% 股价再创历史新高",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "新高",
+          "上涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772078349"
+    },
+    {
+      "title": "MINIMAX-WP盘中涨超6% 高盛指其正处于高速增长阶段",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "上涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772077751"
+    },
+    {
+      "title": "信达国际：给予心动公司“买入”评级 存量游戏及新作有望推动业绩增长",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "买入",
+          "增长"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772076577"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-02-26T13:01:05.918589"
+}
