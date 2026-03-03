@@ -1,0 +1,150 @@
+{
+  "overall_sentiment": 22,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      5,
+      0.2
+    ],
+    [
+      "银行",
+      3,
+      0.0
+    ],
+    [
+      "贵金属",
+      2,
+      -1.0
+    ],
+    [
+      "消费",
+      1,
+      0.0
+    ],
+    [
+      "房地产",
+      1,
+      0.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "“三桶油”再度全线涨停 中国石化创近18年新高",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "新高"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "2026-03-03 12:33:59"
+    },
+    {
+      "title": "港股午评：恒指跌0.29%失守26000点 科指跌1.02% 黄金股回调 油气设备与服务股延续涨势 百勤油服涨超81%",
+      "sentiment": {
+        "score": -2,
+        "label": "negative",
+        "positive": [],
+        "negative": [
+          "下跌",
+          "回调"
+        ]
+      },
+      "sectors": [
+        "贵金属"
+      ],
+      "time": "1772510416"
+    },
+    {
+      "title": "泡泡玛特大跌",
+      "sentiment": {
+        "score": -2,
+        "label": "negative",
+        "positive": [],
+        "negative": [
+          "大跌",
+          "新低"
+        ]
+      },
+      "sectors": [],
+      "time": "1772509809"
+    },
+    {
+      "title": "涂鸦智能-W午前涨近3% 去年净利润5789万美元同比大增逾10倍",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "上涨",
+          "增长"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772509436"
+    },
+    {
+      "title": "国信证券：维持江南布衣“优于大市”评级 2026上半财年净利润增长双位数",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "龙头",
+          "增长"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772508639"
+    },
+    {
+      "title": "国金证券：维持百济神州“买入”评级 早研管线步入收获期",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "放量",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772508497"
+    },
+    {
+      "title": "华泰期货：能源板块整体上涨，后市怎么看？",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "上涨",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772508352"
+    },
+    {
+      "title": "华泰期货：中东地缘政治危机升级，驱动沪铝上涨",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "上涨",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772508304"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-03-03T13:01:05.954882"
+}
