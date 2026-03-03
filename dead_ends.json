@@ -11,5 +11,18 @@
     },
     "reason": "多周期: 0/3通过 (需≥2); 滚动窗口: 0/3通过 (需>1)",
     "date": "2026-02-18"
+  },
+  {
+    "id": "h-20260302-01",
+    "action": "新增get_cooldown_codes()函数，检查近N天止损记录；在买入决策前拦截冷却期内股票。strategy_params加rebuy_cooldown_days:30",
+    "5why_root": "策略缺止损冷却期机制，同股止损后次日评分达标就能再买，导致美的二进宫重复亏损",
+    "result": {
+      "sharpe_delta": 0.0,
+      "win_rate_delta": 0.0,
+      "annual_return_delta": 0.0,
+      "max_drawdown_delta": 0.0
+    },
+    "reason": "多周期: 0/3通过 (需≥2); 滚动窗口: 0/3通过 (需>1)",
+    "date": "2026-03-02"
   }
 ]
