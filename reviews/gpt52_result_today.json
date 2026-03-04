@@ -1,15 +1,11 @@
 {
-  "date": "2026-02-25",
+  "date": "2026-03-04",
   "model": "gpt-5.2",
-  "verdict": {
-    "no_trade_correct": true,
-    "reason": "窄幅震荡无明确边际优势,不交易正确",
-    "cmb_action": "跌破38.0减1000股,2-3日仍弱继续降敞口",
-    "midea_action": "继续跑输考虑减小单票占比",
-    "param_changes": "暂不调,执行与持仓管理优先",
-    "market_outlook": "震荡延续,强者恒强弱者减仓",
-    "code_priority": "持有评审机制自动化(唯一)",
-    "cb_action": "逢冲高分批兑现天箭"
-  },
-  "one_liner": "招行19天零浮盈已触发持有评审,跌破38.0减仓"
+  "score": 5,
+  "verdict": "回调日清仓+转债止盈是对的，但38.50旁路止损暴露执行与参数脱节。",
+  "param_suggestions": "同意不调参。问题不在阈值，在信号-执行-校验断链。",
+  "market_state": "指数同步回调，偏风险规避期，宜轻仓重风控。",
+  "tomorrow_plan": "维持低仓，只执行有代码保护的转债/信号，跑端到端dry-run。",
+  "code_priority": ["P0 akshare替代数据源/降级缓存", "P0 转债保护单(止盈止损强赎max_hold)", "P1 verify_report硬校验+报警", "P1 交易旁路统一入口与日志"],
+  "core_issue": "执行与参数脱节，先补闭环再谈优化。38.50止损若为结构位需制度化写入params。"
 }
