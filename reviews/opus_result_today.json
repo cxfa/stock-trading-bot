@@ -1,11 +1,15 @@
 {
-  "date": "2026-03-04",
+  "date": "2026-03-05",
   "model": "claude-opus-4.5",
-  "score": 4,
-  "verdict": "系统形同虚设，实际在做discretionary trading。参数从未被执行。",
-  "param_suggestions": "暂停调参，先确保代码能跑通。convertible_max_hold_days=30对嘉美崧盛还剩14天窗口。",
-  "market_state": "震荡市+回调日，90%现金是正确防守但非策略胜利，是选股瘫痪被动结果。",
-  "tomorrow_plan": "股票空仓观望，嘉美崧盛接近30天手动检查减仓，不新开仓。",
-  "code_priority": ["P0 选股数据源修复(akshare挂11天)", "P0 转债止盈止损执行代码(90k无保护)", "P1 verify_report空转修复", "P2 转股套利代码"],
-  "core_issue": "系统是个空壳。先让它能跑，再谈优化。"
+  "system_status": "瘫痪 - 数据源断裂11天，系统完全失能",
+  "param_advice": "暂不调参，等数据源恢复后再评估",
+  "market_state": "强反弹日(创业板+2.27%)但系统无法参与",
+  "tomorrow_plan": ["手动查转债当前价判断止盈/止损", "修复akshare连接", "验证stock_discovery返回>0"],
+  "code_priority": [
+    {"level": "P0", "task": "复盘流程加数据源健康检查"},
+    {"level": "P0", "task": "akshare重连/超时重试/备用数据源"},
+    {"level": "P1", "task": "转债价格独立拉取通道"},
+    {"level": "P2", "task": "数据源断裂>1天主动告警"}
+  ],
+  "key_quote": "先治病，后健身。数据源不通，一切免谈。"
 }

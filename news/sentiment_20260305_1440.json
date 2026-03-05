@@ -1,0 +1,125 @@
+{
+  "overall_sentiment": 22,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "贵金属",
+      6,
+      0.33
+    ],
+    [
+      "AI",
+      6,
+      0.17
+    ],
+    [
+      "银行",
+      4,
+      -0.25
+    ],
+    [
+      "医药",
+      3,
+      0.67
+    ],
+    [
+      "房地产",
+      2,
+      0.0
+    ],
+    [
+      "消费",
+      1,
+      0.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "快讯：PTA、乙二醇（EG）主力合约触及涨停",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772690403"
+    },
+    {
+      "title": "光大期货0305热点追踪：伦敦铝刷新高点，地缘局势加剧沪铝波动",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "主力",
+          "新高"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772689456"
+    },
+    {
+      "title": "高盛：五矿资源去年纯利增逾两倍 升目标价至13.5港元",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "盈利"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772689147"
+    },
+    {
+      "title": "快讯：对二甲苯（PX）主力合约触及涨停",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772689021"
+    },
+    {
+      "title": "快讯：SC原油主力合约触及涨停",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772688959"
+    },
+    {
+      "title": "快讯：烧碱主力合约触及涨停",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "主力"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1772688743"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-03-05T14:40:05.118048"
+}
