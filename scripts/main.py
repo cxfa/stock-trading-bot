@@ -174,9 +174,16 @@ def run_full_cycle():
     
     if need_discover:
         print("\n📡 运行股票发现...")
-        discover_stocks()
-        update = update_watchlist_from_discovery()
-        print(f"   新增关注: {update['added']}")
+        dres = discover_stocks()
+        # P0: 发现结果为空则阻断 watchlist 更新（避免新标的交易/更新流程继续）
+        if not (isinstance(dres, dict) and (dres.get("top_picks") or [])):
+            print("🚨 [P0] stock_discovery=0：discover_stocks() 无候选，已跳过 watchlist 更新")
+        else:
+            update = update_watchlist_from_discovery()
+            if isinstance(update, dict) and update.get("blocked"):
+                print("🚨 [P0] watchlist 更新被阻断（discovery为空）")
+            else:
+                print(f"   新增关注: {update['added']}")
     
     # 2. 运行增强版交易周期 (包含 T+0 和多因子)
     result = run_enhanced_trading_cycle()

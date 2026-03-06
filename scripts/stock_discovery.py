@@ -539,7 +539,10 @@ def discover_stocks() -> Dict:
     with open(BASE_DIR / "data" / "discovered_stocks.json", 'w') as f:
         json.dump(result, f, ensure_ascii=False, indent=2)
 
-    print(f"✅ 发现 {len(ranked)} 只优质股票")
+    if len(ranked) == 0:
+        print("🚨 [P0] stock_discovery=0：本次发现结果为空（数据源可能异常），后续将阻断 watchlist 更新/新标的流转")
+    else:
+        print(f"✅ 发现 {len(ranked)} 只优质股票")
 
     return result
 
@@ -563,6 +566,16 @@ def update_watchlist_from_discovery():
 
     with open(discovered_file, 'r') as f:
         discovered = json.load(f)
+
+    # P0: stock_discovery=0 阻断 —— 发现为空则不更新watchlist，避免后续新标的流转
+    top_picks = discovered.get("top_picks") or []
+    if not top_picks:
+        print("🚨 [P0] stock_discovery=0：discover_stocks() 返回为空，已阻断 watchlist 更新")
+        return {
+            "added": [],
+            "total_watchlist": len(watchlist.get("stocks", []) or []),
+            "blocked": True,
+        }
 
     # 添加新发现的股票(最多保持20只)
     added = []

@@ -21,6 +21,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+import requests
+
 # cb_scanner 内部已做 timeout/try-except，本引擎再做一层兜底
 from cb_scanner import fetch_cb_list, scan  # type: ignore
 
@@ -61,6 +63,106 @@ def _safe_write_json(path: Path, data: Any) -> None:
 
 def _now_iso() -> str:
     return datetime.now().isoformat(timespec="seconds")
+
+
+# ------------------------- tradability guard (P0) -------------------------
+
+def _guess_cb_markets(bond_code: str) -> List[str]:
+    """尽力猜测可转债的东财 marketId（0=深，1=沪）。
+
+    经验：大部分 11xxxx/12xxxx 为深市，113xxx/110xxx 为沪市，但不做硬编码，失败则双试。
+    """
+    c = str(bond_code or "").strip().zfill(6)
+    if c.startswith(("11", "12")):
+        return ["0", "1"]
+    if c.startswith(("110", "111", "113")):
+        return ["1", "0"]
+    return ["1", "0"]
+
+
+def _check_cb_tradable(bond_code: str) -> Dict[str, Any]:
+    """买入前硬校验：退市/停牌/不可交易则拒绝。
+
+    返回：
+      {"tradable": bool, "reasons": [..], "details": {...}}
+    """
+    reasons: List[str] = []
+    details: Dict[str, Any] = {}
+    code = str(bond_code or "").strip().zfill(6)
+
+    # 1) 退市校验：东财可转债列表
+    try:
+        url = "https://datacenter-web.eastmoney.com/api/data/v1/get"
+        params = {
+            "reportName": "RPT_BOND_CB_LIST",
+            "columns": "SECURITY_CODE,LISTING_DATE,DELIST_DATE,SECURITY_NAME_ABBR,TRADE_MARKET",
+            "pageSize": 1,
+            "pageNumber": 1,
+            "sortColumns": "PUBLIC_START_DATE",
+            "sortTypes": "-1",
+            "source": "WEB",
+            "client": "WEB",
+            "filter": f"(SECURITY_CODE=\"{code}\")",
+        }
+        r = requests.get(url, params=params, timeout=8)
+        j = r.json()
+        rows = (j.get("result") or {}).get("data") or []
+        if rows:
+            row = rows[0]
+            details["eastmoney_cb"] = {
+                "listing_date": row.get("LISTING_DATE"),
+                "delist_date": row.get("DELIST_DATE"),
+                "name": row.get("SECURITY_NAME_ABBR"),
+                "trade_market": row.get("TRADE_MARKET"),
+            }
+            if row.get("DELIST_DATE"):
+                reasons.append("已退市/到期摘牌(DELIST_DATE存在)")
+            if not row.get("LISTING_DATE"):
+                reasons.append("未上市(LISTING_DATE为空)")
+        else:
+            reasons.append("东财转债列表未查到该标的(可能代码错误/接口异常)")
+    except Exception as e:
+        reasons.append(f"退市校验失败: {e}")
+
+    # 2) 停牌/不可交易：东财 push2 实时接口（f43现价, f46开盘, f47最高, f48最低, f49成交量）
+    try:
+        url = "https://push2.eastmoney.com/api/qt/stock/get"
+        rt = None
+        secids = [f"{m}.{code}" for m in _guess_cb_markets(code)]
+        for secid in secids:
+            params = {"secid": secid, "fields": "f43,f46,f47,f48,f49,f58"}
+            resp = requests.get(url, params=params, timeout=8)
+            jj = resp.json()
+            d = jj.get("data") or {}
+            if d:
+                rt = d
+                details["eastmoney_rt_secid"] = secid
+                break
+        if rt:
+            # f43=最新价(分), f49=成交量(手?)；不同标的可能单位不同，这里只做"是否为0"的硬拦截
+            price = float(rt.get("f43") or 0)
+            openp = float(rt.get("f46") or 0)
+            high = float(rt.get("f47") or 0)
+            low = float(rt.get("f48") or 0)
+            vol = float(rt.get("f49") or 0)
+            name = rt.get("f58")
+            details["eastmoney_rt"] = {"name": name, "price": price, "open": openp, "high": high, "low": low, "vol": vol}
+
+            # 常见停牌：成交量=0 且 现价/开盘为0
+            if vol <= 0 and (price <= 0 or openp <= 0):
+                reasons.append("疑似停牌/不可交易(成交量=0 且 现价/开盘为0)")
+        else:
+            reasons.append("实时行情获取失败(无法确认是否停牌)")
+    except Exception as e:
+        reasons.append(f"停牌校验失败: {e}")
+
+    tradable = True
+    # 任何明确的不可交易理由都拒绝；接口异常只作为提示（不强拒绝）
+    hard = [r for r in reasons if ("退市" in r) or ("未上市" in r) or ("疑似停牌" in r)]
+    if hard:
+        tradable = False
+
+    return {"tradable": tradable, "reasons": reasons, "details": details}
 
 
 # ------------------------- risk / sizing -------------------------
@@ -201,6 +303,16 @@ def execute_cb_trade(
             tx[k] = kwargs[k]
 
     if action == "buy":
+        # P0: 买入前硬校验（退市/停牌/不可交易 → 拒绝下单并记录原因）
+        chk = _check_cb_tradable(bond_code)
+        if not chk.get("tradable", True):
+            return {
+                "success": False,
+                "reason": "cb not tradable",
+                "reasons": chk.get("reasons") or [],
+                "details": chk.get("details") or {},
+            }
+
         total_cost = amount + fees
         cash = float(account.get("current_cash", 0) or 0)
         if total_cost > cash:

@@ -8,6 +8,7 @@
 """
 
 import baostock as bs
+import requests
 from datetime import datetime, timedelta
 from typing import Dict, Optional
 import functools
@@ -105,26 +106,106 @@ def get_consecutive_limit_up(code: str, end_date: str = None, lookback: int = 10
 
 def get_margin_trading_change(code: str, end_date: str = None, period: int = 5) -> Dict:
     """获取融资余额变化率
-    
-    Args:
-        code: 股票代码
-        end_date: 截止日期
-        period: 计算周期（天）
-    
+
+    稳定性策略（P0）：
+    - 优先使用东方财富 DataCenter 接口（无需 akshare、无需鉴权，稳定）
+    - 失败/数据不足时再尝试 akshare（如果环境有安装）
+    - BaoStock 当前无融资融券直接接口，作为占位兜底，保证返回结构稳定
+
     Returns:
         {
             'margin_change_pct': float or None,  # 融资余额变化率(%)
             'source': str,  # 数据源
+            'error': str (optional)
         }
     """
-    # 先尝试AKShare（BaoStock融资融券接口不稳定）
-    result = _get_margin_akshare(code, end_date, period)
-    if result['margin_change_pct'] is not None:
+    # 1) 东方财富（优先，不依赖 akshare）
+    result = _get_margin_eastmoney(code, end_date, period)
+    if result.get('margin_change_pct') is not None:
         return result
-    
-    # 再尝试BaoStock
-    result = _get_margin_baostock(code, end_date, period)
-    return result
+
+    # 2) akshare（可选）
+    result2 = _get_margin_akshare(code, end_date, period)
+    if result2.get('margin_change_pct') is not None:
+        return result2
+
+    # 3) baostock 占位兜底（确保不返回空结构）
+    result3 = _get_margin_baostock(code, end_date, period)
+    # 如果 baostock 也不可用，保留 eastmoney/akshare 的错误信息，便于排查
+    if result3.get('margin_change_pct') is None and result.get('error') and not result3.get('error'):
+        result3['error'] = result.get('error')
+    return result3
+
+
+def _get_margin_eastmoney(code: str, end_date: str = None, period: int = 5) -> Dict:
+    """通过东方财富 DataCenter 获取融资余额变化率（RZYE）。
+
+    接口： http://datacenter.eastmoney.com/api/data/get
+    报表： type=RPTA_WEB_RZRQ_GGMX
+
+    说明：
+    - 不需要 akshare/鉴权
+    - 返回数据按交易日聚合；直接取最近交易日与 period 个交易日前的交易日对比
+    """
+    try:
+        pure_code = code.replace("sh.", "").replace("sz.", "").replace("SH.", "").replace("SZ.", "").zfill(6)
+
+        url = "http://datacenter.eastmoney.com/api/data/get"
+        # 多取一些防止节假日/停牌导致不足
+        ps = max(20, int(period) + 10)
+        params = {
+            "type": "RPTA_WEB_RZRQ_GGMX",
+            "sty": "ALL",
+            "p": 1,
+            "ps": ps,
+            "st": "DATE",
+            "sr": -1,
+            # 注意：这里不能用单引号包裹 601888，会导致服务端语法错误
+            "filter": f"(SCODE={pure_code})",
+        }
+
+        resp = requests.get(url, params=params, timeout=10)
+        data = resp.json()
+        if not data.get("success"):
+            return {"margin_change_pct": None, "source": "eastmoney_error", "error": str(data.get("message") or "request failed")}
+
+        rows = (data.get("result") or {}).get("data") or []
+        if not rows:
+            return {"margin_change_pct": None, "source": "eastmoney_empty"}
+
+        # 如传入 end_date（YYYY-MM-DD），过滤掉大于 end_date 的行
+        if end_date:
+            try:
+                end_dt = datetime.strptime(end_date, "%Y-%m-%d")
+                filtered = []
+                for r in rows:
+                    ds = str(r.get("DATE") or "")[:10]
+                    try:
+                        dt = datetime.strptime(ds, "%Y-%m-%d")
+                    except Exception:
+                        continue
+                    if dt <= end_dt:
+                        filtered.append(r)
+                rows = filtered or rows
+            except Exception:
+                pass
+
+        if len(rows) <= period:
+            return {"margin_change_pct": None, "source": "eastmoney_insufficient"}
+
+        recent = rows[0]
+        past = rows[min(period, len(rows) - 1)]
+
+        recent_val = float(recent.get("RZYE") or 0)
+        past_val = float(past.get("RZYE") or 0)
+        if past_val <= 0 or recent_val <= 0:
+            return {"margin_change_pct": None, "source": "eastmoney_invalid"}
+
+        change_pct = (recent_val - past_val) / past_val * 100
+        return {"margin_change_pct": round(change_pct, 2), "source": "eastmoney"}
+
+    except Exception as e:
+        return {"margin_change_pct": None, "source": "eastmoney_exception", "error": str(e)}
 
 
 def _get_margin_akshare(code: str, end_date: str = None, period: int = 5) -> Dict:
