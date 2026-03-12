@@ -1,0 +1,108 @@
+{
+  "overall_sentiment": 40,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      7,
+      0.57
+    ],
+    [
+      "新能源车",
+      2,
+      0.0
+    ],
+    [
+      "消费",
+      2,
+      0.5
+    ],
+    [
+      "贵金属",
+      1,
+      1.0
+    ],
+    [
+      "银行",
+      1,
+      0.0
+    ],
+    [
+      "光伏",
+      1,
+      1.0
+    ],
+    [
+      "房地产",
+      1,
+      0.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "方正证券：首予鸣鸣很忙“推荐”评级 量贩零食龙头启航",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "推荐",
+          "增长",
+          "龙头"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773207411"
+    },
+    {
+      "title": "国盛证券：维持小鹏汽车-W“买入”评级 VLA2.0大模型大算力大数据均表现丝滑",
+      "sentiment": {
+        "score": 4,
+        "label": "very_positive",
+        "positive": [
+          "买入",
+          "扩张",
+          "强势",
+          "看好"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "AI"
+      ],
+      "time": "1773207161"
+    },
+    {
+      "title": "屈宏斌：油价飙升能治通缩？这是今年最大的经济学误解",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "利好",
+          "上涨",
+          "飙升"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773206958"
+    },
+    {
+      "title": "海通国际：维持宁德时代“优于大市”评级 业绩高增兑现龙头韧性",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "龙头",
+          "盈利"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773206568"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-03-11T14:40:05.513336"
+}
