@@ -1,323 +1,287 @@
 {
-  "discovered_at": "2026-03-16T09:27:45.993597",
-  "total_scanned": 58,
-  "quality_stocks": 23,
+  "discovered_at": "2026-03-16T15:12:20.828950",
+  "total_scanned": 40,
+  "quality_stocks": 38,
   "fallback_used": null,
   "top_picks": [
     {
-      "code": "603169",
-      "name": "兰石重装",
-      "price": 13.5,
-      "change_pct": 5.47,
-      "volume": 25526,
-      "amount": 34460100.0,
-      "amplitude": 0.0,
-      "turnover": 0.2,
-      "pe": 1181.29,
-      "pb": 10.15,
-      "market_cap": 17634939273,
-      "source": "三连涨",
-      "discovery_score": 20,
-      "sources": [
-        "三连涨"
-      ]
-    },
-    {
-      "code": "000988",
-      "name": "华工科技",
-      "price": 118.74,
-      "change_pct": 0.04,
-      "amount": 194166379.02,
-      "turnover": 0.16,
-      "pe": 67.77,
-      "market_cap": 119393391429,
-      "source": "成交额榜",
-      "discovery_score": 15,
-      "sources": [
-        "成交额榜"
-      ]
-    },
-    {
-      "code": "300750",
-      "name": "宁德时代",
-      "price": 401.77,
-      "change_pct": 1.2,
-      "amount": 173243224.0,
-      "turnover": 0.01,
-      "pe": 25.4,
-      "market_cap": 1833625630452,
-      "source": "成交额榜",
-      "discovery_score": 15,
-      "sources": [
-        "成交额榜"
-      ]
-    },
-    {
-      "code": "300274",
-      "name": "阳光电源",
-      "price": 179.0,
-      "change_pct": 2.06,
-      "amount": 136720379.0,
-      "turnover": 0.05,
-      "pe": 23.43,
-      "market_cap": 371104844896,
-      "source": "成交额榜",
-      "discovery_score": 15,
-      "sources": [
-        "成交额榜"
-      ]
-    },
-    {
       "code": "600989",
-      "name": "宝丰能源",
-      "price": 34.72,
-      "change_pct": 0.06,
-      "amount": 120481872.0,
-      "turnover": 0.05,
-      "pe": 22.43,
-      "market_cap": 254614259200,
-      "source": "成交额榜",
+      "name": "600989",
+      "price": 34.7,
+      "change_pct": 2.8758,
+      "volume": 257159503,
+      "amount": 8820847885.14,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
       "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "002463",
-      "name": "沪电股份",
-      "price": 81.4,
-      "change_pct": 0.27,
-      "amount": 114000700.0,
-      "turnover": 0.07,
-      "pe": 40.98,
-      "market_cap": 156643191912,
-      "source": "成交额榜",
+      "code": "002384",
+      "name": "002384",
+      "price": 110.93,
+      "change_pct": 1.4913,
+      "volume": 103802558,
+      "amount": 11887996997.48,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
       "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "688525",
-      "name": "佰维存储",
-      "price": 212.0,
-      "change_pct": 1.1,
-      "amount": 112803292.0,
-      "turnover": 0.11,
-      "pe": 114.26,
-      "market_cap": 99031922520,
-      "source": "成交额榜",
+      "code": "002709",
+      "name": "002709",
+      "price": 48.77,
+      "change_pct": 0.2879,
+      "volume": 127964190,
+      "amount": 6341012443.03,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
       "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "002931",
-      "name": "锋龙股份",
-      "price": 82.1,
-      "change_pct": 0.64,
-      "amount": 108150330.0,
-      "turnover": 0.65,
-      "pe": 625.25,
-      "market_cap": 17939330778,
-      "source": "成交额榜",
+      "code": "000792",
+      "name": "000792",
+      "price": 39.6,
+      "change_pct": 3.5024,
+      "volume": 140215640,
+      "amount": 5598309172.58,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
       "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "300065",
-      "name": "海兰信",
-      "price": 27.45,
-      "change_pct": 4.53,
-      "amount": 48355920.0,
-      "market_cap": 19806249942,
-      "sector": "航海装备Ⅲ",
-      "source": "航海装备Ⅲ龙头",
+      "code": "601117",
+      "name": "601117",
+      "price": 10.14,
+      "change_pct": 1.7051,
+      "volume": 278553928,
+      "amount": 2840070387.12,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
       "discovery_score": 15,
       "sources": [
-        "航海装备Ⅲ龙头"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "600150",
-      "name": "中国船舶",
-      "price": 35.6,
-      "change_pct": 1.19,
-      "amount": 34158200.0,
-      "market_cap": 267912117853,
-      "sector": "航海装备Ⅲ",
-      "source": "航海装备Ⅲ龙头",
+      "code": "601800",
+      "name": "601800",
+      "price": 8.5,
+      "change_pct": 2.7811,
+      "volume": 131382963,
+      "amount": 1108664033.64,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
       "discovery_score": 15,
       "sources": [
-        "航海装备Ⅲ龙头"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "002960",
-      "name": "青鸟消防",
-      "price": 11.81,
-      "change_pct": 9.05,
-      "volume": 14239,
-      "amount": 16816495.2,
-      "amplitude": 0.0,
-      "turnover": 0.18,
-      "pe": 32.73,
-      "pb": 46.4,
-      "market_cap": 10390542743,
-      "source": "涨幅榜",
-      "discovery_score": 10,
+      "code": "600803",
+      "name": "600803",
+      "price": 22.66,
+      "change_pct": 1.6599,
+      "volume": 26064735,
+      "amount": 595517305.43,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "涨幅榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "603929",
-      "name": "亚翔集成",
-      "price": 153.21,
-      "change_pct": 8.79,
-      "volume": 3282,
-      "amount": 50283522.0,
-      "amplitude": 0.0,
-      "turnover": 0.15,
-      "pe": 36.64,
-      "pb": 25.78,
-      "market_cap": 32688885600,
-      "source": "涨幅榜",
-      "discovery_score": 10,
+      "code": "601728",
+      "name": "601728",
+      "price": 6.18,
+      "change_pct": 3.0,
+      "volume": 405905201,
+      "amount": 2483010149.55,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "涨幅榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "300468",
-      "name": "四方精创",
-      "price": 38.82,
-      "change_pct": 8.04,
-      "volume": 31886,
-      "amount": 123780365.04,
-      "amplitude": 0.0,
-      "turnover": 0.6,
-      "pe": 230.97,
-      "pb": 12.49,
-      "market_cap": 20599804856,
-      "source": "涨幅榜",
-      "discovery_score": 10,
+      "code": "601633",
+      "name": "601633",
+      "price": 21.07,
+      "change_pct": 2.2319,
+      "volume": 29205807,
+      "amount": 612375677.45,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "涨幅榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "002537",
-      "name": "海联金汇",
-      "price": 9.17,
-      "change_pct": 7.13,
-      "volume": 52886,
-      "amount": 48496462.0,
-      "amplitude": 0.0,
-      "turnover": 0.45,
-      "pe": 40.24,
-      "pb": 19.72,
-      "market_cap": 10765733552,
-      "source": "涨幅榜",
-      "discovery_score": 10,
+      "code": "002594",
+      "name": "002594",
+      "price": 99.67,
+      "change_pct": 0.5752,
+      "volume": 51976482,
+      "amount": 5199004697.47,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "涨幅榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "300180",
-      "name": "华峰超纤",
-      "price": 7.22,
-      "change_pct": 6.49,
-      "volume": 37080,
-      "amount": 26771760.0,
-      "amplitude": 0.0,
-      "turnover": 0.22,
-      "pe": 100.05,
-      "pb": 11.79,
-      "market_cap": 12714854319,
-      "source": "涨幅榜",
-      "discovery_score": 10,
+      "code": "002460",
+      "name": "002460",
+      "price": 70.03,
+      "change_pct": 0.7626,
+      "volume": 53703706,
+      "amount": 3820714519.0,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "涨幅榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "601669",
-      "name": "中国电建",
-      "price": 7.1,
-      "change_pct": -1.25,
-      "amount": 405327640.0,
-      "turnover": 0.44,
-      "pe": 12.27,
-      "market_cap": 122305731271,
-      "source": "成交额榜",
-      "discovery_score": 10,
+      "code": "600015",
+      "name": "600015",
+      "price": 7.16,
+      "change_pct": 1.7045,
+      "volume": 108768780,
+      "amount": 777473000.08,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "601899",
-      "name": "紫金矿业",
-      "price": 35.04,
-      "change_pct": -2.04,
-      "amount": 183329280.0,
-      "turnover": 0.03,
-      "pe": 18.46,
-      "market_cap": 931704249226,
-      "source": "成交额榜",
-      "discovery_score": 10,
+      "code": "601077",
+      "name": "601077",
+      "price": 6.97,
+      "change_pct": 1.3081,
+      "volume": 70015406,
+      "amount": 487781472.82,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "002407",
-      "name": "多氟多",
-      "price": 30.21,
-      "change_pct": -2.07,
-      "amount": 144791696.4,
-      "turnover": 0.44,
-      "pe": 345.56,
-      "market_cap": 35962967909,
-      "source": "成交额榜",
-      "discovery_score": 10,
+      "code": "000651",
+      "name": "000651",
+      "price": 38.6,
+      "change_pct": 1.9007,
+      "volume": 59326449,
+      "amount": 2277902663.29,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "001896",
-      "name": "豫能控股",
-      "price": 15.0,
-      "change_pct": -2.85,
-      "amount": 138447750.0,
-      "turnover": 0.6,
-      "pe": 59.66,
-      "market_cap": 22886719950,
-      "source": "成交额榜",
-      "discovery_score": 10,
+      "code": "601825",
+      "name": "601825",
+      "price": 8.81,
+      "change_pct": 1.9676,
+      "volume": 27388507,
+      "amount": 240353035.56,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
       ]
     },
     {
-      "code": "002015",
-      "name": "协鑫能科",
-      "price": 22.24,
-      "change_pct": -0.18,
-      "amount": 122680376.96,
-      "turnover": 0.34,
-      "pe": 35.53,
-      "market_cap": 36102739415,
-      "source": "成交额榜",
-      "discovery_score": 10,
+      "code": "601985",
+      "name": "601985",
+      "price": 9.24,
+      "change_pct": 0.8734,
+      "volume": 366843033,
+      "amount": 3380695921.82,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
       "sources": [
-        "成交额榜"
+        "BaoStock指数池"
+      ]
+    },
+    {
+      "code": "000568",
+      "name": "000568",
+      "price": 107.86,
+      "change_pct": 2.548,
+      "volume": 13109496,
+      "amount": 1403484995.23,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
+      "sources": [
+        "BaoStock指数池"
+      ]
+    },
+    {
+      "code": "600104",
+      "name": "600104",
+      "price": 14.63,
+      "change_pct": 1.5972,
+      "volume": 109303656,
+      "amount": 1595607499.18,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
+      "sources": [
+        "BaoStock指数池"
+      ]
+    },
+    {
+      "code": "002466",
+      "name": "002466",
+      "price": 54.15,
+      "change_pct": 1.0261,
+      "volume": 45495777,
+      "amount": 2500177759.39,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
+      "sources": [
+        "BaoStock指数池"
+      ]
+    },
+    {
+      "code": "603288",
+      "name": "603288",
+      "price": 37.79,
+      "change_pct": 2.08,
+      "volume": 28735039,
+      "amount": 1090182469.1,
+      "market_cap": 0,
+      "source": "BaoStock指数池",
+      "discovery_score": 15,
+      "sources": [
+        "BaoStock指数池"
       ]
     }
   ],

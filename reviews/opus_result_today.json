@@ -1,13 +1,8 @@
 {
-  "date": "2026-03-06",
+  "date": "2026-03-16",
   "model": "claude-opus-4.5",
-  "evaluation": "策略没死，系统有病。止损机制正常，问题在缺少市场状态过滤层。",
-  "param_suggestions": {
-    "stop_loss_pct": "震荡市放宽至-4%~-5%，但前提是market_regime能工作",
-    "priority": "不调参，先修bug"
-  },
-  "market_view": "继续空仓观望，大盘未见止跌信号",
-  "tomorrow_plan": "不交易，专注修bug。若操作仅限转债小仓位",
-  "code_priority": ["验证框架debug", "market_regime修复", "仓位管理层"],
-  "key_insight": "验证框架18次对比完全一致是元问题，修复它才能知道其他模块是否有效"
+  "summary": "空仓12天不合理，非策略保守而是系统故障（数据源超时）。暂不调参，修数据源是唯一优先级。创业板+0.41%有结构性机会但系统采集不到。代码优先级：1.akshare稳定性 2.选股健康度监控 3.假设验证框架debug",
+  "verdict": "基础设施故障导致策略失明，先修水管再调水温",
+  "param_changes": "none",
+  "code_priority": ["akshare数据源超时重试/备用源", "选股健康度监控告警", "假设验证框架before=after bug"]
 }
