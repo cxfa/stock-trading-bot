@@ -1,9 +1,9 @@
 // 投资看板数据文件 - 自动生成，请勿手动编辑
-// 生成时间: 2026-03-13T11:41:33
+// 生成时间: 2026-03-16T11:44:18
 
 window.DASHBOARD_DATA = {
   "_meta": {
-    "generated_at": "2026-03-13T11:41:33",
+    "generated_at": "2026-03-16T11:44:18",
     "generator": "realtime_updater.py",
     "version": "1.2"
   },
