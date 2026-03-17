@@ -1,0 +1,175 @@
+{
+  "overall_sentiment": 39,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      8,
+      0.38
+    ],
+    [
+      "消费",
+      5,
+      0.6
+    ],
+    [
+      "贵金属",
+      2,
+      2.5
+    ],
+    [
+      "新能源车",
+      2,
+      0.0
+    ],
+    [
+      "银行",
+      2,
+      0.5
+    ],
+    [
+      "光伏",
+      1,
+      0.0
+    ],
+    [
+      "医药",
+      1,
+      1.0
+    ],
+    [
+      "房地产",
+      1,
+      1.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "集体大涨！600569 一分钟涨停！",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "涨停",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "2026-03-17 12:32:43"
+    },
+    {
+      "title": "招银国际：维持鸿腾精密“买入”评级 目标价升至7.42港元",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "盈利",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773723604"
+    },
+    {
+      "title": "花旗：升建滔积层板目标价至30港元 料可受惠于AI纤维短缺",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "盈利"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "AI"
+      ],
+      "time": "1773723555"
+    },
+    {
+      "title": "花旗：下调布鲁可目标价至88港元 维持“买入”评级",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "增长",
+          "扩张",
+          "买入"
+        ],
+        "negative": [
+          "下调"
+        ]
+      },
+      "sectors": [],
+      "time": "1773723452"
+    },
+    {
+      "title": "集体大涨！600569，一分钟涨停！",
+      "sentiment": {
+        "score": 3,
+        "label": "very_positive",
+        "positive": [
+          "强势",
+          "涨停",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773721686"
+    },
+    {
+      "title": "周生生大涨",
+      "sentiment": {
+        "score": 4,
+        "label": "very_positive",
+        "positive": [
+          "超预期",
+          "盈利",
+          "飙升",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773719820"
+    },
+    {
+      "title": "威胜控股午前涨超5% 预计全年纯利同比增长约42%至50%",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "上涨",
+          "增长"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773719580"
+    },
+    {
+      "title": "金价红利加持！周生生2025年盈利预增超一倍，股价大涨近8%",
+      "sentiment": {
+        "score": 4,
+        "label": "very_positive",
+        "positive": [
+          "超预期",
+          "盈利",
+          "飙升",
+          "大涨"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "贵金属"
+      ],
+      "time": "1773718424"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-03-17T13:01:08.229570"
+}

@@ -1,0 +1,98 @@
+{
+  "overall_sentiment": 19,
+  "overall_label": "positive",
+  "hot_sectors": [
+    [
+      "AI",
+      8,
+      0.62
+    ],
+    [
+      "贵金属",
+      2,
+      0.5
+    ],
+    [
+      "银行",
+      2,
+      0.0
+    ],
+    [
+      "消费",
+      1,
+      0.0
+    ],
+    [
+      "房地产",
+      1,
+      1.0
+    ]
+  ],
+  "stock_mentions": {},
+  "important_news": [
+    {
+      "title": "股东拟“清仓式”减持，昭衍新药股价跌停，最新回应来了",
+      "sentiment": {
+        "score": -3,
+        "label": "very_negative",
+        "positive": [],
+        "negative": [
+          "跌停",
+          "大跌",
+          "减持"
+        ]
+      },
+      "sectors": [],
+      "time": "1773728928"
+    },
+    {
+      "title": "招银国际：维持鸿腾精密“买入”评级 目标价升至7.42港元",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "盈利",
+          "买入"
+        ],
+        "negative": []
+      },
+      "sectors": [],
+      "time": "1773723604"
+    },
+    {
+      "title": "花旗：升建滔积层板目标价至30港元 料可受惠于AI纤维短缺",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "盈利",
+          "增长"
+        ],
+        "negative": []
+      },
+      "sectors": [
+        "AI"
+      ],
+      "time": "1773723555"
+    },
+    {
+      "title": "花旗：下调布鲁可目标价至88港元 维持“买入”评级",
+      "sentiment": {
+        "score": 2,
+        "label": "positive",
+        "positive": [
+          "扩张",
+          "增长",
+          "买入"
+        ],
+        "negative": [
+          "下调"
+        ]
+      },
+      "sectors": [],
+      "time": "1773723452"
+    }
+  ],
+  "total_news": 80,
+  "analyzed_at": "2026-03-17T14:40:05.678313"
+}
