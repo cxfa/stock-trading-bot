@@ -29,11 +29,31 @@ Thumbs.db
 secrets.json
 .env
 
-# 数据文件（敏感+大文件）
+# 数据文件（运行时生成，不提交到git，仅保存在本地）
 account.json
+account.json.bak
 transactions.json
+trades.json
 watchlist.json
 tomorrow_plan.json
+tomorrow_plan_pending.json
+verify_output.json
+data/buy_plan.json
+data/review_output.json
+data/strategy_state.json
+data/tracking_state.json
+data/discovered_stocks.json
+data/discovered_stocks_last_good.json
+data/cb_opportunities.json
+data/fear_greed_history.json
+data/intraday_snapshots/
+scripts/data/
+reviews/
+news/
+sentiment-data/
+backtest_results/
+models/*.json
+models/*.pkl
 qlib-env/
 qlib_data/
 mlruns/
