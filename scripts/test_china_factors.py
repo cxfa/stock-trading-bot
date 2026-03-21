@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """A股特色因子单元测试"""
 import sys
-sys.path.insert(0, "/root/.openclaw/workspace/stock-trading/scripts")
+import os
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from china_factors import get_consecutive_limit_up, get_margin_trading_change, score_china_factors
 

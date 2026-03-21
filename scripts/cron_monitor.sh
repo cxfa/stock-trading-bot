@@ -1,4 +1,7 @@
 #!/bin/bash
 set -euo pipefail
-cd /root/.openclaw/workspace/stock-trading
+# 自动定位项目目录（脚本所在目录的父目录）
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+cd "$PROJECT_DIR"
 python3 scripts/intraday_monitor.py 2>&1 | tee -a /tmp/monitor-$(date +%Y%m%d).log

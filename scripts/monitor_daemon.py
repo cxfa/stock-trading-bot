@@ -111,20 +111,28 @@ def setup_logging() -> logging.Logger:
 
 def safe_load_json(path: Path, default: Any) -> Any:
     try:
-        if not path.exists():
+        from file_lock import locked_read_json
+        return locked_read_json(path, default)
+    except ImportError:
+        try:
+            if not path.exists():
+                return default
+            with open(path, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except Exception:
             return default
-        with open(path, "r", encoding="utf-8") as f:
-            return json.load(f)
-    except Exception:
-        return default
 
 
 def safe_write_json(path: Path, data: Any) -> None:
-    path.parent.mkdir(parents=True, exist_ok=True)
-    tmp = path.with_suffix(path.suffix + ".tmp")
-    with open(tmp, "w", encoding="utf-8") as f:
-        json.dump(data, f, ensure_ascii=False, indent=2)
-    os.replace(tmp, path)
+    try:
+        from file_lock import locked_write_json
+        locked_write_json(path, data)
+    except ImportError:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        tmp = path.with_suffix(path.suffix + ".tmp")
+        with open(tmp, "w", encoding="utf-8") as f:
+            json.dump(data, f, ensure_ascii=False, indent=2)
+        os.replace(tmp, path)
 
 
 def now_ts() -> str:
@@ -136,11 +144,23 @@ def is_weekday(dt: datetime) -> bool:
 
 
 def in_trading_time(dt: datetime) -> bool:
-    # 按需求：9:15-15:00（不拆午休）
+    """判断是否在交易时段（排除午休和集合竞价）"""
     if not is_weekday(dt):
         return False
     t = dt.hour * 60 + dt.minute
-    return (9 * 60 + 15) <= t <= (15 * 60)
+    # 早盘: 09:30-11:30, 午盘: 13:00-15:00
+    # 排除 09:15-09:25 集合竞价（不可撤单）、11:30-13:00 午休、15:00后收盘竞价
+    morning = (9 * 60 + 30) <= t <= (11 * 60 + 30)
+    afternoon = (13 * 60) <= t <= (15 * 60)
+    return morning or afternoon
+
+
+def in_monitoring_time(dt: datetime) -> bool:
+    """判断是否在监控时段（比交易时段稍宽，含开盘前准备和盘后处理）"""
+    if not is_weekday(dt):
+        return False
+    t = dt.hour * 60 + dt.minute
+    return (9 * 60 + 15) <= t <= (15 * 60 + 5)
 
 
 def next_trading_start(dt: datetime) -> datetime:
@@ -193,7 +213,8 @@ def load_strategy_params() -> StrategyParams:
 # ------------------------- feishu alert -------------------------
 
 def _load_feishu_app_secret() -> Optional[str]:
-    cfg = safe_load_json(Path("/root/.openclaw/openclaw.json"), {})
+    cfg_path = os.environ.get("OPENCLAW_CONFIG", "/root/.openclaw/openclaw.json")
+    cfg = safe_load_json(Path(cfg_path), {})
     try:
         return cfg["channels"]["feishu"]["accounts"]["main"]["appSecret"]
     except Exception:
@@ -221,7 +242,7 @@ def send_feishu_alert(message: str, logger: logging.Logger) -> bool:
     """只在有交易信号时调用。失败返回 False，不抛异常。"""
     app_secret = _load_feishu_app_secret()
     if not app_secret:
-        logger.warning("Feishu appSecret not found in /root/.openclaw/openclaw.json")
+        logger.warning("Feishu appSecret not found (check OPENCLAW_CONFIG or /root/.openclaw/openclaw.json)")
         return False
 
     token = _get_feishu_tenant_token(app_secret, logger)
@@ -648,7 +669,8 @@ def check_stop_loss_rebuy_ban(code: str) -> bool:
 
 def load_openclaw_gateway_token() -> Optional[str]:
     """从openclaw.json读取gateway auth token"""
-    cfg = safe_load_json(Path("/root/.openclaw/openclaw.json"), {})
+    cfg_path = os.environ.get("OPENCLAW_CONFIG", "/root/.openclaw/openclaw.json")
+    cfg = safe_load_json(Path(cfg_path), {})
     try:
         return cfg["gateway"]["auth"]["token"]
     except Exception:
@@ -860,8 +882,17 @@ def update_holdings_with_realtime(
     account["last_updated"] = datetime.now().isoformat()
 
 
+# ATR 缓存（1小时有效，避免每10秒循环调用K线API）
+_atr_cache: Dict[str, Tuple[float, float]] = {}  # code -> (atr_abs, timestamp)
+_ATR_CACHE_TTL = 3600  # 1小时
+
+
 def _calc_atr_abs(code: str, rt: Dict[str, Any], sp: StrategyParams, logger: logging.Logger) -> float:
-    """返回 ATR 绝对价格（元），失败则返回0。"""
+    """返回 ATR 绝对价格（元），带1小时缓存，失败则返回0。"""
+    now = time.time()
+    cached = _atr_cache.get(code)
+    if cached and (now - cached[1]) < _ATR_CACHE_TTL:
+        return cached[0]
     try:
         klines = fetch_kline(code, period="101", limit=max(60, sp.atr_period + 5))
         if not klines:
@@ -869,11 +900,12 @@ def _calc_atr_abs(code: str, rt: Dict[str, Any], sp: StrategyParams, logger: log
         atr_pct = calculate_hybrid_atr(klines, rt) if sp.atr_use_hybrid else 0.0
         if atr_pct <= 0:
             return 0.0
-        # 用当前价换算
         price = float(rt.get("price", 0) or 0)
         if price <= 0:
             price = float(klines[-1].get("close", 0) or 0)
-        return float(price) * float(atr_pct)
+        result = float(price) * float(atr_pct)
+        _atr_cache[code] = (result, now)
+        return result
     except Exception as e:
         logger.info(f"ATR calc failed for {code}: {e}")
         return 0.0
@@ -1094,7 +1126,7 @@ def main() -> int:
     while not STOP:
         dt = datetime.now()
 
-        if not in_trading_time(dt):
+        if not in_monitoring_time(dt):
             nxt = next_trading_start(dt)
             wait_sec = max(5, int((nxt - dt).total_seconds()))
             logger.info(f"非交易时间，等待... next={nxt.strftime('%Y-%m-%d %H:%M:%S')} sleep={wait_sec}s")
@@ -1125,9 +1157,16 @@ def main() -> int:
 
             realtime = fetch_realtime_sina(quote_codes) if quote_codes else {}
 
-            # update account with latest prices
-            update_holdings_with_realtime(account, realtime, logger)
-            safe_write_json(ACCOUNT_FILE, account)
+            # update account with latest prices (use locked_update for TOCTOU safety)
+            try:
+                from file_lock import locked_update_json
+                def _update_fn(acc):
+                    update_holdings_with_realtime(acc, realtime, logger)
+                    return acc
+                account = locked_update_json(ACCOUNT_FILE, _update_fn)
+            except ImportError:
+                update_holdings_with_realtime(account, realtime, logger)
+                safe_write_json(ACCOUNT_FILE, account)
 
             # append snapshots
             append_intraday_snapshot(account, realtime, logger)
@@ -1138,6 +1177,8 @@ def main() -> int:
             # ========== AUTO TRADING EXECUTION ==========
             executed_trades = []
             buy_signals_for_llm = []
+            MAX_SELLS_PER_LOOP = 2  # 防止级联止损，每轮最多自动卖出2笔
+            sells_this_loop = 0
             
             if signals:
                 for sig in signals:
@@ -1147,13 +1188,23 @@ def main() -> int:
                     
                     try:
                         if signal_type == "sell":
+                            # 级联止损保护：每轮最多执行 MAX_SELLS_PER_LOOP 笔卖出
+                            if sells_this_loop >= MAX_SELLS_PER_LOOP:
+                                logger.warning(f"⚠️ 级联保护: 本轮已执行{sells_this_loop}笔卖出，{code}延后到下一轮")
+                                continue
+                            
+                            # 交易时间检查：只在连续竞价时段执行
+                            if not in_trading_time(datetime.now()):
+                                logger.warning(f"⚠️ 非连续竞价时段，{code}卖出信号延后")
+                                continue
+                            
                             # 判断信号类型决定卖出比例
                             if "止损" in reason:
                                 # 止损：全部卖出
                                 trade = execute_auto_sell(account, sig, 1.0, logger)
                                 if trade:
                                     executed_trades.append(trade)
-                                    # 重新加载账户（因为execute_trade会save）
+                                    sells_this_loop += 1
                                     account = safe_load_json(ACCOUNT_FILE, {})
                                     logger.info(f"🔴 止损卖出完成: {code} - {reason}")
                             
@@ -1162,6 +1213,7 @@ def main() -> int:
                                 trade = execute_auto_sell(account, sig, sp.trailing_stop_sell_pct, logger)
                                 if trade:
                                     executed_trades.append(trade)
+                                    sells_this_loop += 1
                                     account = safe_load_json(ACCOUNT_FILE, {})
                                     logger.info(f"🟡 ATR追踪止盈完成: {code} - {reason}")
                             
@@ -1170,6 +1222,7 @@ def main() -> int:
                                 trade = execute_auto_sell(account, sig, 1.0, logger)
                                 if trade:
                                     executed_trades.append(trade)
+                                    sells_this_loop += 1
                                     account = safe_load_json(ACCOUNT_FILE, {})
                                     logger.info(f"🟢 止盈卖出完成: {code} - {reason}")
                             

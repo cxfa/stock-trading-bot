@@ -51,6 +51,7 @@
   "qlib_weight": 0.4,
   "debate_llm": {
     "provider": "openclaw",
-    "model": "github-copilot/gemini-2.0-flash"
+    "model": "auto",
+    "note": "provider=openclaw 时自动读取 OpenClaw 当前配置的模型; 也可手动指定如 openai/gpt-4o-mini"
   }
 }

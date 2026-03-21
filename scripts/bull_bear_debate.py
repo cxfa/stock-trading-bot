@@ -71,72 +71,173 @@ def _call_llm(prompt: str) -> str:
 
 
 def _call_via_openclaw(prompt: str) -> str:
-    """通过GitHub Copilot API调用LLM（复用OpenClaw的token）"""
-    # 读取OpenClaw的copilot token
-    token_file = "/root/.openclaw/credentials/github-copilot.token.json"
-    with open(token_file) as f:
-        token_data = json.load(f)
-    token = token_data["token"]
-    
-    # 从token解析API endpoint（proxy-ep需要替换proxy.为api.）
-    base_url = "https://api.business.githubcopilot.com"
-    for part in token.split(";"):
-        if part.strip().startswith("proxy-ep="):
-            host = part.split("=", 1)[1].strip()
-            # OpenClaw的做法：proxy. -> api.
-            import re as _re
-            host = _re.sub(r'^(https?://)?proxy\.', '', host, flags=_re.IGNORECASE)
-            base_url = f"https://api.{host}"
-            break
-    
-    # 读取配置的模型，默认gemini-2.0-flash
-    cfg = _load_llm_config()
-    model = cfg.get("model", "gpt-4o-mini")
-    # 去掉provider前缀
-    if "/" in model:
-        model = model.split("/", 1)[1]
-    # 某些模型在copilot API不可用，fallback
-    _COPILOT_MODEL_MAP = {
-        "gemini-2.0-flash": "gpt-4o-mini",
-        "gpt-4.1-mini": "gpt-4o-mini",
+    """通过 OpenClaw 当前配置的模型调用 LLM。
+
+    读取 OpenClaw 的配置文件，获取当前配置的模型、provider、API key 和 base URL，
+    然后通过标准 OpenAI-compatible API 调用。不再绕过 Gateway 直接用 Copilot token。
+
+    配置文件：
+    - /root/.openclaw/openclaw.json -> agents.defaults.model.primary (如 "openai/gpt-4o-mini")
+    - /root/.openclaw/agents/main/agent/models.json -> providers.{name}.{apiKey, baseUrl}
+    - /root/.openclaw/agents/main/agent/auth-profiles.json -> profiles (fallback API keys)
+    """
+    openclaw_dir = os.environ.get("OPENCLAW_DIR", "/root/.openclaw")
+
+    # 1. 读取当前配置的模型
+    config_file = os.path.join(openclaw_dir, "openclaw.json")
+    try:
+        with open(config_file) as f:
+            oc_config = json.load(f)
+    except Exception:
+        oc_config = {}
+
+    # 从 agents.defaults.model.primary 获取模型（格式: "provider/model-id"）
+    model_str = ""
+    try:
+        model_str = oc_config["agents"]["defaults"]["model"]["primary"]
+    except (KeyError, TypeError):
+        pass
+
+    # 也检查 subagents 模型作为 fallback
+    if not model_str:
+        try:
+            sub = oc_config["agents"]["defaults"]["subagents"]["model"]
+            model_str = sub if isinstance(sub, str) else sub.get("primary", "")
+        except (KeyError, TypeError):
+            pass
+
+    if not model_str or "/" not in model_str:
+        # 没有配置模型，fallback 到 strategy_params.json 里的配置
+        cfg = _load_llm_config()
+        model_str = f"{cfg.get('provider', 'openai')}/{cfg.get('model', 'gpt-4o-mini')}"
+
+    provider_name, model_id = model_str.split("/", 1)
+
+    # 2. 读取 provider 的 API key 和 base URL
+    models_file = os.path.join(openclaw_dir, "agents", "main", "agent", "models.json")
+    try:
+        with open(models_file) as f:
+            models_cfg = json.load(f)
+    except Exception:
+        models_cfg = {}
+
+    provider_cfg = (models_cfg.get("providers") or {}).get(provider_name, {})
+    api_key = provider_cfg.get("apiKey", "")
+    base_url = provider_cfg.get("baseUrl", "")
+
+    # 3. 如果 models.json 没有 key，从 auth-profiles.json 找
+    if not api_key:
+        auth_file = os.path.join(openclaw_dir, "agents", "main", "agent", "auth-profiles.json")
+        try:
+            with open(auth_file) as f:
+                auth_cfg = json.load(f)
+            for profile in (auth_cfg.get("profiles") or {}).values():
+                if profile.get("provider") == provider_name:
+                    api_key = profile.get("apiKey") or profile.get("token") or ""
+                    if api_key:
+                        break
+        except Exception:
+            pass
+
+    # 4. 确定 base URL（使用 OpenClaw 已知的默认值）
+    DEFAULT_URLS = {
+        "anthropic": "https://api.anthropic.com/v1",
+        "openai": "https://api.openai.com/v1",
+        "gemini": "https://generativelanguage.googleapis.com/v1beta",
+        "openrouter": "https://openrouter.ai/api/v1",
+        "deepseek": "https://api.deepseek.com/v1",
+        "github-copilot": "https://api.business.githubcopilot.com",
+        "bailian": "https://coding.dashscope.aliyuncs.com/v1",
+        "zai": "https://open.bigmodel.cn/api/paas/v4",
+        "moonshot": "https://api.moonshot.ai/v1",
+        "groq": "https://api.groq.com/openai/v1",
+        "xai": "https://api.x.ai/v1",
+        "together": "https://api.together.xyz/v1",
+        "mistral": "https://api.mistral.ai/v1",
     }
-    model = _COPILOT_MODEL_MAP.get(model, model)
-    
-    headers = {
-        "Authorization": f"Bearer {token}",
-        "Content-Type": "application/json",
-        "User-Agent": "GitHubCopilotChat/0.35.0",
-        "Editor-Version": "vscode/1.107.0",
-        "Editor-Plugin-Version": "copilot-chat/0.35.0",
-        "Copilot-Integration-Id": "vscode-chat",
-    }
+    if not base_url:
+        base_url = DEFAULT_URLS.get(provider_name, "")
+
+    if not base_url:
+        raise ValueError(f"无法确定 provider '{provider_name}' 的 API 地址，请检查 OpenClaw 配置")
+
+    # 5. 特殊处理 Gemini（不使用 OpenAI 格式）
+    if provider_name == "gemini":
+        url = f"{base_url}/models/{model_id}:generateContent?key={api_key}"
+        payload = {
+            "contents": [{"parts": [{"text": prompt}]}],
+            "generationConfig": {"temperature": 0.7, "maxOutputTokens": 2048},
+        }
+        resp = requests.post(url, json=payload, timeout=60)
+        resp.raise_for_status()
+        return resp.json()["candidates"][0]["content"]["parts"][0]["text"]
+
+    # 6. 特殊处理 github-copilot（需要特殊 headers + streaming）
+    if provider_name == "github-copilot":
+        # 读取 Copilot token（可能在 auth-profiles 或 credentials 中）
+        token = api_key
+        if not token:
+            token_file = os.path.join(openclaw_dir, "credentials", "github-copilot.token.json")
+            try:
+                with open(token_file) as f:
+                    token_data = json.load(f)
+                token = token_data.get("token", "")
+            except Exception:
+                pass
+
+        if not token:
+            raise ValueError("未找到 GitHub Copilot token，请检查 OpenClaw 配置")
+
+        headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "User-Agent": "GitHubCopilotChat/0.35.0",
+            "Editor-Version": "vscode/1.107.0",
+            "Editor-Plugin-Version": "copilot-chat/0.35.0",
+            "Copilot-Integration-Id": "vscode-chat",
+        }
+        payload = {
+            "model": model_id,
+            "messages": [{"role": "user", "content": prompt}],
+            "temperature": 0.7,
+            "max_tokens": 2048,
+            "stream": True,
+        }
+        resp = requests.post(f"{base_url}/chat/completions", json=payload,
+                             headers=headers, timeout=60, stream=True)
+        resp.raise_for_status()
+        content_parts = []
+        for line in resp.iter_lines():
+            if not line:
+                continue
+            line = line.decode("utf-8", errors="ignore")
+            if line.startswith("data: "):
+                data_str = line[6:]
+                if data_str.strip() == "[DONE]":
+                    break
+                try:
+                    chunk = json.loads(data_str)
+                    delta = chunk.get("choices", [{}])[0].get("delta", {})
+                    if "content" in delta and delta["content"] is not None:
+                        content_parts.append(delta["content"])
+                except (json.JSONDecodeError, IndexError, KeyError):
+                    pass
+        return "".join(content_parts)
+
+    # 7. 标准 OpenAI-compatible API（大多数 provider 走这条路）
+    url = f"{base_url.rstrip('/')}/chat/completions"
+    headers = {"Content-Type": "application/json"}
+    if api_key:
+        headers["Authorization"] = f"Bearer {api_key}"
     payload = {
-        "model": model,
+        "model": model_id,
         "messages": [{"role": "user", "content": prompt}],
         "temperature": 0.7,
         "max_tokens": 2048,
     }
-    payload["stream"] = True
-    resp = requests.post(f"{base_url}/chat/completions", json=payload, headers=headers, timeout=60, stream=True)
+    resp = requests.post(url, json=payload, headers=headers, timeout=60)
     resp.raise_for_status()
-    # SSE流式读取，拼接content
-    content_parts = []
-    for line in resp.iter_lines():
-        if not line:
-            continue
-        line = line.decode("utf-8", errors="ignore")
-        if line.startswith("data: "):
-            data_str = line[6:]
-            if data_str.strip() == "[DONE]":
-                break
-            try:
-                chunk = json.loads(data_str)
-                delta = chunk.get("choices", [{}])[0].get("delta", {})
-                if "content" in delta and delta["content"] is not None:
-                    content_parts.append(delta["content"])
-            except (json.JSONDecodeError, IndexError, KeyError):
-                pass
-    return "".join(content_parts)
+    return resp.json()["choices"][0]["message"]["content"]
 
 
 def _build_debate_prompt(code: str, info: Dict) -> str:
@@ -273,13 +374,14 @@ def debate_stock(code: str, info: Dict) -> Dict:
         return {
             "code": code,
             "name": info.get("name", code),
-            "confidence": 50,
+            "confidence": 30,  # 失败时偏保守（<40 会被拒绝），而非中性 50
             "key_risk": f"辩论失败: {str(e)}",
             "key_opportunity": "未知",
             "bull_summary": "辩论失败",
             "bear_summary": "辩论失败",
-            "verdict": "观望",
-            "error": str(e)
+            "verdict": "回避",
+            "error": str(e),
+            "llm_failed": True,
         }
 
 
@@ -292,10 +394,14 @@ def apply_debate_to_decision(debate_result: Dict, original_quantity: int) -> tup
     """
     confidence = debate_result.get("confidence", 50)
     
+    # LLM 失败时直接拒绝
+    if debate_result.get("llm_failed"):
+        return 0, f"LLM辩论失败，放弃买入。错误: {debate_result.get('error', '未知')}"
+
     if confidence < 40:
         return 0, f"辩论置信度过低({confidence})，放弃买入。风险: {debate_result.get('key_risk', '未知')}"
     elif confidence <= 60:
-        adj_qty = (original_quantity // 200) * 100  # 减半，取整到100
+        adj_qty = int(original_quantity * 0.5 / 100) * 100  # 减半，取整到100手
         if adj_qty < 100:
             return 0, f"辩论置信度中等({confidence})，减半后不足1手，放弃"
         return adj_qty, f"辩论置信度中等({confidence})，买入量减半。风险: {debate_result.get('key_risk', '未知')}"

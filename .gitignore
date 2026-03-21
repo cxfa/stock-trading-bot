@@ -27,6 +27,7 @@ Thumbs.db
 *.key
 *.pem
 secrets.json
+.env
 
 # 数据文件（敏感+大文件）
 account.json
@@ -48,3 +49,5 @@ run_backtest.py
 run_benchmark.py
 dump_bin.py
 dashboard/
+.scheduler.pid
+data/scheduler_state.json

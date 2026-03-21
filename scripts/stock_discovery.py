@@ -531,7 +531,7 @@ def fetch_baostock_pool_picks(max_codes: int = BAOSTOCK_POOL_MAX_CODES) -> List[
             # Avoid limit-up/down and illiquid junk by soft rules
             if last_close <= 0:
                 continue
-            if abs(last_cpct) >= 9.9:
+            if abs(last_cpct) >= 9.95:
                 continue
 
             picks.append({
@@ -580,7 +580,7 @@ def filter_quality_stocks(stocks: List[Dict]) -> List[Dict]:
             change_pct = float(s.get("change_pct", 0))
         except (ValueError, TypeError):
             change_pct = 0
-        if abs(change_pct) >= 9.9:
+        if abs(change_pct) >= 9.95:
             continue
 
         # 过滤低价股 (< 5元) — AI基础设施研究来源豁免（price=0是因为没实时数据）
@@ -596,7 +596,7 @@ def filter_quality_stocks(stocks: List[Dict]) -> List[Dict]:
             market_cap = float(s.get("market_cap", 0))
         except (ValueError, TypeError):
             market_cap = 0
-        if market_cap > 0 and market_cap < 10000000000 and s.get("source") != "AI基础设施研究":  # 100亿
+        if market_cap > 0 and market_cap < 10000000000 and s.get("source") not in ("AI基础设施研究", "BaoStock指数池"):  # 100亿
             continue
 
         seen_codes.add(code)
@@ -720,6 +720,42 @@ def discover_stocks() -> Dict:
             stock_scores[code]["ai_infra_category"] = infra_data.get("ai_infra_category", "")
             stock_scores[code]["ai_infra_reason"] = infra_data.get("ai_infra_reason", "")
             stock_scores[code]["_bonus_ai_infra"] = True
+
+    # ─── 复盘输出加分/扣分（读取 review_output.json）───
+    try:
+        review_output_path = BASE_DIR / "data" / "review_output.json"
+        if review_output_path.exists():
+            with open(review_output_path, 'r', encoding='utf-8') as f:
+                review_output = json.load(f)
+            insights = review_output.get("stock_insights", {})
+            # 复盘推荐加分
+            for item in insights.get("watch_list", []):
+                rcode = str(item.get("code", "")).zfill(6)
+                if rcode in stock_scores:
+                    boost = item.get("score_boost", 10)
+                    stock_scores[rcode]["discovery_score"] += boost
+                    stock_scores[rcode].setdefault("sources", []).append("复盘推荐")
+            # 复盘回避扣分
+            for item in insights.get("avoid_list", []):
+                rcode = str(item.get("code", "")).zfill(6)
+                if rcode in stock_scores:
+                    penalty = item.get("score_penalty", -15)
+                    stock_scores[rcode]["discovery_score"] += penalty
+    except Exception:
+        pass
+
+    # ─── 多日跟踪加分（连续出现的股票获得额外权重）───
+    try:
+        from multi_day_tracker import MultiDayTracker
+        tracker = MultiDayTracker()
+        boosts = tracker.get_discovery_boost()
+        for code, bonus in boosts.items():
+            if code in stock_scores:
+                stock_scores[code]["discovery_score"] += bonus
+                if bonus > 0:
+                    stock_scores[code].setdefault("sources", []).append("多日跟踪")
+    except Exception:
+        pass
 
     # 清理内部字段
     for v in stock_scores.values():

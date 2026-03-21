@@ -97,8 +97,8 @@ class T0Strategy:
         low_price = min(m["low"] for m in minutes_data)
         
         # 计算波动率
-        price_range = (high_price - low_price) / open_price * 100
-        change_pct = (current_price - open_price) / open_price * 100
+        price_range = (high_price - low_price) / open_price * 100 if open_price > 0 else 0
+        change_pct = (current_price - open_price) / open_price * 100 if open_price > 0 else 0
         
         # 量价分析
         first_half_vol = sum(volumes[:len(volumes)//2])
@@ -198,10 +198,10 @@ class T0Strategy:
             return None
         
         # 计算涨跌幅
-        change_from_open = (current_price - open_price) / open_price * 100
-        change_from_close = (current_price - pre_close) / pre_close * 100
-        change_from_high = (current_price - high_price) / high_price * 100
-        change_from_low = (current_price - low_price) / low_price * 100
+        change_from_open = (current_price - open_price) / open_price * 100 if open_price > 0 else 0
+        change_from_close = (current_price - pre_close) / pre_close * 100 if pre_close > 0 else 0
+        change_from_high = (current_price - high_price) / high_price * 100 if high_price > 0 else 0
+        change_from_low = (current_price - low_price) / low_price * 100 if low_price > 0 else 0
         
         # 已卖出，寻找买回机会
         if already_sold_today > 0 and sold_avg_price > 0:
@@ -298,7 +298,7 @@ class T0Strategy:
                              sold_qty: int) -> Optional[Dict]:
         """寻找 T+0 买回信号"""
         
-        change_from_sold = (current_price - sold_price) / sold_price * 100
+        change_from_sold = (current_price - sold_price) / sold_price * 100 if sold_price > 0 else 0
         change_from_low = (current_price - low_price) / low_price * 100 if low_price > 0 else 0
         
         signal = None

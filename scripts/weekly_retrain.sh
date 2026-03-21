@@ -1,13 +1,15 @@
 #!/bin/bash
 set -e
-LOG_DIR="/root/.openclaw/workspace/stock-trading/logs"
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
+LOG_DIR="$PROJECT_DIR/logs"
 LOG_FILE="$LOG_DIR/weekly_retrain_$(date +'%Y%m%d_%H%M%S').log"
 mkdir -p "$LOG_DIR"
 
 exec > >(tee -a "$LOG_FILE") 2>&1
 
 echo "===== Qlib Weekly Retrain Start: $(date) ====="
-cd /root/.openclaw/workspace/stock-trading || exit 1
+cd "$PROJECT_DIR" || exit 1
 source qlib-env/bin/activate
 
 # 1. 增量采集最近2周数据

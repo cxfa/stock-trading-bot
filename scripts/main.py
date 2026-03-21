@@ -6,6 +6,7 @@
 
 import sys
 import json
+import os
 import subprocess
 from datetime import datetime
 from pathlib import Path
@@ -19,7 +20,7 @@ from news_sentiment import get_market_sentiment
 from fetch_stock_data import fetch_market_overview, fetch_realtime_sina
 
 BASE_DIR = Path(__file__).parent.parent
-FEISHU_CARD = Path("/root/.openclaw/workspace/scripts/feishu_card.py")
+FEISHU_CARD = Path(os.environ.get("FEISHU_CARD_SCRIPT", "/root/.openclaw/workspace/scripts/feishu_card.py"))
 
 
 def _send_feishu_card(title: str, content_md: str, template: str = "blue", note: str = "小豆豆") -> bool:
@@ -257,8 +258,29 @@ def main():
     if cmd == "cycle":
         run_full_cycle()
     elif cmd == "discover":
-        discover_stocks()
+        # 1. 运行选股
+        result = discover_stocks()
         update_watchlist_from_discovery()
+
+        # 2. 更新多日跟踪器（读取复盘输出 + 选股结果 + 持仓）
+        try:
+            from multi_day_tracker import MultiDayTracker
+            from fetch_stock_data import fetch_kline as _kline_fn
+            tracker = MultiDayTracker()
+            account = load_account()
+            discovered = result.get("top_picks", []) if isinstance(result, dict) else []
+            summary = tracker.update(
+                discovered_stocks=discovered,
+                holdings=account.get("holdings", []),
+                kline_fetcher=_kline_fn,
+            )
+            print(f"📊 多日跟踪已更新: {summary.get('total_tracked', 0)}只股票")
+            sustained = summary.get("sustained_focus", [])
+            if sustained:
+                print(f"  🔥 持续关注: {', '.join(s['name'] for s in sustained[:5])}")
+        except Exception as e:
+            print(f"⚠️ 多日跟踪更新失败: {e}")
+
     elif cmd == "report":
         print(generate_report())
     elif cmd == "sentiment":

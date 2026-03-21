@@ -29,7 +29,7 @@ DATA_DIR = BASE_DIR / "data"
 SNAPSHOT_DIR = DATA_DIR / "intraday_snapshots"
 SNAPSHOT_DIR.mkdir(parents=True, exist_ok=True)
 
-FEISHU_CARD = Path("/root/.openclaw/workspace/scripts/feishu_card.py")
+FEISHU_CARD = Path(os.environ.get("FEISHU_CARD_SCRIPT", "/root/.openclaw/workspace/scripts/feishu_card.py"))
 
 
 def _send_feishu_card(title: str, content_md: str, template: str = "blue", note: str = "小豆豆") -> bool:

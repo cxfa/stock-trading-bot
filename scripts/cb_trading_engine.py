@@ -515,6 +515,10 @@ def should_sell_or_convert(
             if buy_dt and now.date() >= (buy_dt + timedelta(days=1)).date():
                 return "convert", f"T+1仍负溢价({premium:.2f}%) 模拟转股"
 
+    # 任意策略持仓：出现负溢价且可转股 -> 转股套利
+    if strategy != "负溢价转股套利" and premium is not None and premium < -2.0 and can_convert:
+        return "convert", f"持仓出现负溢价({premium:.2f}%)，可转股套利"
+
     # 低价低溢价：价格>105 或 溢价>10% -> 卖出
     if strategy == "低价低溢价":
         if cur_price > 105:

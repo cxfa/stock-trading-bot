@@ -7,6 +7,8 @@ import json
 from datetime import datetime, timedelta
 from pathlib import Path
 from typing import List, Dict, Tuple
+import logging
+import os
 
 from fetch_stock_data import (
     fetch_realtime_sina, fetch_kline, fetch_market_overview,
@@ -74,26 +76,42 @@ def _load_strategy_params():
 _load_strategy_params()
 
 def load_account() -> Dict:
-    """加载账户信息"""
-    account_file = BASE_DIR / "account.json"
-    if account_file.exists():
-        with open(account_file, 'r') as f:
-            return json.load(f)
-    return {
-        "initial_capital": 1000000,
-        "current_cash": 1000000,
-        "total_value": 1000000,
-        "holdings": [],
-        "frozen_sells": [],
-        "daily_pnl": 0,
-        "total_pnl": 0
-    }
+    """加载账户信息（带文件锁）"""
+    try:
+        from file_lock import locked_read_json
+        return locked_read_json(BASE_DIR / "account.json", default={
+            "initial_capital": 1000000,
+            "current_cash": 1000000,
+            "total_value": 1000000,
+            "holdings": [],
+            "frozen_sells": [],
+            "daily_pnl": 0,
+            "total_pnl": 0
+        })
+    except ImportError:
+        account_file = BASE_DIR / "account.json"
+        if account_file.exists():
+            with open(account_file, 'r') as f:
+                return json.load(f)
+        return {
+            "initial_capital": 1000000,
+            "current_cash": 1000000,
+            "total_value": 1000000,
+            "holdings": [],
+            "frozen_sells": [],
+            "daily_pnl": 0,
+            "total_pnl": 0
+        }
 
 def save_account(account: Dict):
-    """保存账户信息"""
+    """保存账户信息（带文件锁）"""
     account["last_updated"] = datetime.now().isoformat()
-    with open(BASE_DIR / "account.json", 'w') as f:
-        json.dump(account, f, ensure_ascii=False, indent=2)
+    try:
+        from file_lock import locked_write_json
+        locked_write_json(BASE_DIR / "account.json", account)
+    except ImportError:
+        with open(BASE_DIR / "account.json", 'w') as f:
+            json.dump(account, f, ensure_ascii=False, indent=2)
 
 def load_watchlist() -> Dict:
     """加载关注列表"""
@@ -156,7 +174,10 @@ def check_hold_reviews(account: Dict, prices: Dict) -> List[Dict]:
         except Exception:
             continue
         current_price = prices.get(code, h.get("current_price", h["cost_price"]))
-        pnl_pct = (current_price - h["cost_price"]) / h["cost_price"]
+        cost = h.get("cost_price", 0)
+        if cost <= 0:
+            continue
+        pnl_pct = (current_price - cost) / cost
         if hold_days >= review_days and pnl_pct <= 0:
             sell_qty = max(100, (h["quantity"] // 2 // 100) * 100)
             if sell_qty > 0 and sell_qty <= h["quantity"]:
@@ -183,9 +204,12 @@ def get_today_stop_loss_codes() -> set:
         codes = set()
         for t in transactions:
             if (t.get("type") == "sell" and
-                t.get("timestamp", "").startswith(today) and
-                "止损" in t.get("reason", "")):
-                codes.add(t["code"])
+                t.get("timestamp", "").startswith(today)):
+                reasons_str = t.get("reason", "")
+                if not reasons_str:
+                    reasons_str = " ".join(t.get("reasons", []))
+                if "止损" in reasons_str:
+                    codes.add(t["code"])
         return codes
     except Exception:
         return set()
@@ -268,12 +292,19 @@ def score_stock(code: str, realtime: Dict, klines: List[Dict], sentiment: Dict) 
         reasons.append("下跌趋势")
     
     # === P0: MA5均线过滤（10次复盘提出，终于入码！） ===
+    ma5_blocked = False
     if len(closes) >= 5:
         ma5 = sum(closes[-5:]) / 5
         current_close = closes[-1]
         if realtime and realtime.get("price", 0) > 0:
             current_close = realtime["price"]
-        if current_close < ma5:
+        if current_close < ma5 * 0.98:
+            # 价格跌破 MA5 超过 2%：强制阻断买入
+            score -= 30
+            ma5_blocked = True
+            reasons.append(f"⛔均线阻断: 价格{current_close:.2f}远低于MA5({ma5:.2f})，禁止买入")
+        elif current_close < ma5:
+            # 价格略低于 MA5：扣分但不阻断（可能是回踩）
             score -= 20
             reasons.append(f"⚠️均线过滤: 价格{current_close:.2f}<MA5({ma5:.2f})")
         elif current_close > ma5 * 1.02:
@@ -307,8 +338,8 @@ def score_stock(code: str, realtime: Dict, klines: List[Dict], sentiment: Dict) 
                 reasons.append(f"⚠️日内跌幅过滤: 今日{change_pct:.1f}%(<=-2%)扣30分")
             
             # === P1: 日内高位过滤（冲高回落区降权，防止追高买入） ===
-            high = rt.get("high", 0)
-            low = rt.get("low", 0)
+            high = realtime.get("high", 0)
+            low = realtime.get("low", 0)
             intraday_range = high - low
             high_zone_pct = TRADING_RULES.get("intraday_high_zone_pct", 0.75)
             if intraday_range > 0 and high > 0:
@@ -429,7 +460,11 @@ def score_stock(code: str, realtime: Dict, klines: List[Dict], sentiment: Dict) 
         sell_th = 40
 
     # 判断动作（结合恐贪阈值动态调整）
-    if score >= strong_buy_th:
+    if ma5_blocked and score > sell_th:
+        # MA5 远低于均线：即使分高也不买入，强制 hold
+        action = "hold"
+        reasons.append("⛔MA5阻断：分数足够但均线不支持")
+    elif score >= strong_buy_th:
         action = "strong_buy"
     elif score >= buy_th:
         action = "buy"
@@ -464,7 +499,11 @@ def generate_trade_decisions(account: Dict, watchlist: Dict, sentiment: Dict = N
         return decisions
     
     # 获取实时数据
-    realtime = fetch_realtime_sina(codes)
+    try:
+        realtime = fetch_realtime_sina(codes)
+    except Exception as e:
+        logging.getLogger(__name__).error(f"获取实时数据失败: {e}")
+        return decisions
     
     # 获取可用资金
     available_cash = get_current_cash(account)
@@ -477,7 +516,11 @@ def generate_trade_decisions(account: Dict, watchlist: Dict, sentiment: Dict = N
             continue
         
         # 获取K线数据
-        klines = fetch_kline(code, period="101", limit=60)
+        try:
+            klines = fetch_kline(code, period="101", limit=60)
+        except Exception as e:
+            logging.getLogger(__name__).warning(f"获取K线失败({code}): {e}")
+            continue
         
         # 打分
         analysis = score_stock(code, rt, klines, sentiment)
@@ -498,6 +541,8 @@ def generate_trade_decisions(account: Dict, watchlist: Dict, sentiment: Dict = N
         
         if holding_qty > 0:
             # 有持仓，检查止盈止损
+            if cost_price <= 0:
+                continue
             pnl_pct = (rt["price"] - cost_price) / cost_price
             decision["holding_qty"] = holding_qty
             decision["cost_price"] = cost_price
@@ -795,6 +840,17 @@ def execute_trade(account: Dict, decision: Dict) -> Dict:
 
 def run_trading_cycle():
     """运行一次交易周期"""
+    # 市场时间检查
+    now = datetime.now()
+    hour, minute = now.hour, now.minute
+    current_minutes = hour * 60 + minute
+    # 允许 09:25-11:35 和 12:55-15:05 (含少量缓冲)
+    morning_ok = 9 * 60 + 25 <= current_minutes <= 11 * 60 + 35
+    afternoon_ok = 12 * 60 + 55 <= current_minutes <= 15 * 60 + 5
+    if not (morning_ok or afternoon_ok):
+        print(f"⏰ 非交易时段({now.strftime('%H:%M')})，跳过交易周期")
+        return None
+
     print(f"\n{'='*60}")
     print(f"交易周期开始: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print('='*60)
@@ -803,19 +859,27 @@ def run_trading_cycle():
     account = load_account()
     watchlist = load_watchlist()
     
+    if "total_value" not in account:
+        account["total_value"] = account.get("current_cash", 1000000) + sum(
+            h.get("market_value", h.get("quantity", 0) * h.get("cost_price", 0))
+            for h in account.get("holdings", [])
+        )
+
     print(f"\n[账户状态]")
     print(f"  现金: ¥{account['current_cash']:,.2f}")
     print(f"  持仓: {len(account.get('holdings', []))}只")
 
     # P0: 持有评审（在其他风控之前执行）
     try:
-        _review_prices_raw = fetch_realtime_sina([h["code"] for h in account.get("holdings", [])])
+        try:
+            _review_prices_raw = fetch_realtime_sina([h["code"] for h in account.get("holdings", [])])
+        except Exception as e:
+            logging.getLogger(__name__).error(f"持有评审获取价格失败: {e}")
+            _review_prices_raw = {}
         _review_prices = {h["code"]: _review_prices_raw.get(h["code"], {}).get("price", h.get("current_price", h["cost_price"])) for h in account.get("holdings", [])}
         review_actions = check_hold_reviews(account, _review_prices)
         for ra in review_actions:
-            import logging as _logging
-            _logger = _logging.getLogger(__name__)
-            _logger.info(f"[持有评审] {ra['name']}({ra['code']}) {ra['reasons'][0]}")
+            logging.getLogger(__name__).info(f"[持有评审] {ra['name']}({ra['code']}) {ra['reasons'][0]}")
             print(f"\n📋 [持有评审] {ra['name']}({ra['code']}) {ra['reasons'][0]}")
             execute_trade(account, {
                 "code": ra["code"],

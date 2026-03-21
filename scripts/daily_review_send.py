@@ -14,12 +14,13 @@ This is meant to be invoked by system crontab to avoid OpenClaw agent-cron LLM f
 
 import sys
 import json
+import os
 import subprocess
 from pathlib import Path
 from typing import Optional
 
 BASE_DIR = Path(__file__).parent.parent
-FEISHU_CARD = Path("/root/.openclaw/workspace/scripts/feishu_card.py")
+FEISHU_CARD = Path(os.environ.get("FEISHU_CARD_SCRIPT", "/root/.openclaw/workspace/scripts/feishu_card.py"))
 
 # local import
 sys.path.insert(0, str(Path(__file__).parent))
